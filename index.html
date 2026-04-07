@@ -95,7 +95,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 .btn-d{background:#ff444420;color:#ff8888;border:1.5px solid #ff444430;}
 .btn-sm{padding:6px 12px;font-size:11px;border-radius:8px;}
 .btn-ic{width:34px;height:34px;padding:0;border-radius:50%;background:var(--sf2);color:var(--tx);}
-.fab{position:fixed;bottom:calc(var(--nh)+12px);right:16px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--pk2),var(--pk));box-shadow:0 4px 20px var(--pg),0 0 0 4px var(--pp);z-index:50;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;}
+.fab{position:fixed;bottom:calc(var(--nh)+10px);left:50%;transform:translateX(-50%);width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--pk2),var(--pk));box-shadow:0 4px 20px var(--pg),0 0 0 4px var(--pp);z-index:50;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;}
 .fab:active{transform:scale(.9);}
 
 /* INPUTS */
@@ -266,12 +266,32 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 @keyframes spin{to{transform:rotate(360deg)}}
 .sync-ok{font-size:10px;color:var(--mn);}
 .sync-err{font-size:10px;color:#ff8888;}
+
+/* ── SOCIAL / CHAT ── */
+.friend-req-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .2s;}
+.friend-req-btn:active{transform:scale(.95);}
+.fr-send{background:var(--pk);color:#fff;box-shadow:0 2px 10px var(--pg);}
+.fr-pending{background:var(--sf2);color:var(--dm);}
+.fr-accept{background:var(--mn);color:#000;}
+.fr-friends{background:var(--sf2);color:var(--mn);border:1px solid var(--mn);}
+.emoji-tray{display:none;flex-wrap:wrap;gap:3px;padding:8px 10px;background:var(--dk);border-top:1px solid var(--bd);max-height:130px;overflow-y:auto;}
+.emoji-tray.on{display:flex;}
+.emoji-tray span{font-size:22px;cursor:pointer;padding:3px;border-radius:6px;line-height:1.2;}
+.emoji-tray span:active{background:var(--pp);}
+.chat-toolbar{display:flex;gap:4px;padding:5px 10px;background:var(--dk);border-top:1px solid var(--bd);}
+.chat-tb-btn{background:none;border:none;cursor:pointer;font-size:17px;padding:5px 7px;border-radius:8px;color:var(--dm);transition:background .15s;line-height:1;}
+.chat-tb-btn:active{background:var(--sf2);}
+.gif-panel{display:none;background:var(--sf);border-top:1px solid var(--bd);}
+.gif-panel.on{display:block;}
+.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:7px;max-height:180px;overflow-y:auto;}
+.gif-grid img{width:100%;border-radius:6px;cursor:pointer;aspect-ratio:4/3;object-fit:cover;}
+.gif-search-inp{padding:7px 10px;width:100%;}
+.msg-media{max-width:220px;border-radius:10px;margin-top:4px;display:block;cursor:pointer;}
+video.msg-media{max-width:220px;}
 </style>
 <div id="app">
 
 <!-- SETUP -->
-<!-- setup screen removed - Firebase URL hardcoded -->
-
 <!-- SPLASH -->
 <div id="scr-splash" class="scr on">
   <div class="sp-wrap">
@@ -330,7 +350,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
         <div class="chip" onclick="vf('solo',this)">Solo</div>
         <div class="chip" onclick="vf('unit',this)">Unit</div>
         <div class="chip" onclick="vf('trade',this)">For Trade</div>
-        <div class="chip" onclick="vf('wish',this)">Wishlist</div>
+        <div class="chip" onclick="vf('wish',this)">ISO</div>
         <div class="chip" onclick="vf('dupe',this)">Dupes</div>
       </div>
       <div class="grid" id="vault-grid"></div>
@@ -397,8 +417,64 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
         <div class="divl"></div>
         <button class="btn btn-o" style="width:100%;margin-bottom:9px" onclick="openEditProf()">✏️ Edit Profile</button>
         <button class="btn btn-d" style="width:100%;margin-bottom:9px" onclick="doLogout()">Sign Out</button>
-
       </div>
+    </div>
+  </div>
+
+
+  <!-- ── CHAT TAB ── -->
+  <div id="pn-chat" class="pane">
+    <div class="hdr"><div><div class="hdr-kr">채팅</div><div class="hdr-sub">Chat</div></div></div>
+    <div class="chips" id="chat-chips" style="padding:10px 13px 0;margin-bottom:0">
+      <div class="chip on" onclick="chatTab('group',this)">🌸 Group Chat</div>
+      <div class="chip" onclick="chatTab('dms',this)">💬 DMs</div>
+      <div class="chip" onclick="chatTab('friends',this)">👥 Friends</div>
+    </div>
+    <!-- GROUP CHAT -->
+    <div id="chat-group" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="msg-area" id="gc-msgs" style="flex:1;min-height:0"></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('gc')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('gc')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('gc-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="gc-emoji"></div>
+      <div class="gif-panel" id="gc-gif">
+        <input class="inp gif-search-inp" id="gc-gif-q" placeholder="Search GIFs… (e.g. kpop dance)" oninput="searchGif('gc')">
+        <div class="gif-grid" id="gc-gif-grid"></div>
+      </div>
+      <div class="msg-bar">
+        <input class="inp" id="gc-msg" placeholder="Message everyone…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGroupMsg()}">
+        <button class="btn btn-p btn-sm" onclick="sendGroupMsg()">Send</button>
+      </div>
+      <input type="file" id="gc-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('gc',event)">
+    </div>
+    <!-- DM LIST -->
+    <div id="chat-dms" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
+    <!-- FRIENDS LIST -->
+    <div id="chat-friends" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
+  </div>
+
+  <!-- ── DM CONVERSATION MODAL ── -->
+  <div class="ovl" id="m-dm">
+    <div class="modal mfull" style="display:flex;flex-direction:column">
+      <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-dm')">←</button><div class="mtitle" id="dm-t"></div></div>
+      <div class="msg-area" id="dm-msgs" style="flex:1;min-height:0"></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('dm')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('dm')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('dm-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="dm-emoji"></div>
+      <div class="gif-panel" id="dm-gif">
+        <input class="inp gif-search-inp" id="dm-gif-q" placeholder="Search GIFs…" oninput="searchGif('dm')">
+        <div class="gif-grid" id="dm-gif-grid"></div>
+      </div>
+      <div class="msg-bar">
+        <input class="inp" id="dm-msg" placeholder="Send a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDM()}">
+        <button class="btn btn-p btn-sm" onclick="sendDM()">Send</button>
+      </div>
+      <input type="file" id="dm-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('dm',event)">
     </div>
   </div>
 
@@ -406,7 +482,14 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
     <button class="nb on" id="nb-vault" onclick="goTab('vault',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="nb-lbl">Vault</span></button>
     <button class="nb" id="nb-coll" onclick="goTab('coll',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nb-lbl">Collection</span></button>
     <button class="nb" id="nb-trade" onclick="goTab('trade',this)"><div style="position:relative;display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="nb-pip hidden" id="trade-pip">0</span></div><span class="nb-lbl">Trade</span></button>
-    <button class="nb" id="nb-prof" onclick="goTab('prof',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nb-lbl">Profile</span></button>
+    <button class="nb" id="nb-chat" onclick="goTab('chat',this)">
+      <div style="position:relative;display:inline-flex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="nb-pip hidden" id="chat-pip" style="background:var(--mn);color:#000"></span>
+      </div>
+      <span class="nb-lbl">Chat</span>
+    </button>
+    <button class="nb" id="nb-prof"  onclick="goTab('prof',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nb-lbl">Profile</span></button>
   </nav>
 </div>
 
@@ -437,7 +520,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
       <div style="background:var(--sf);border-radius:var(--rs);padding:3px 13px;margin-bottom:13px">
         <div class="trow"><div><div class="tr-l">Keeping</div><div class="tr-s">Permanently keeping this card</div></div><label class="tog"><input type="checkbox" id="c-keep"><div class="tog-t"></div><div class="tog-h"></div></label></div>
         <div class="trow"><div><div class="tr-l">For Trade</div><div class="tr-s">Show on community board</div></div><label class="tog"><input type="checkbox" id="c-trd"><div class="tog-t"></div><div class="tog-h"></div></label></div>
-        <div class="trow"><div><div class="tr-l">Wishlist</div><div class="tr-s">Card you're looking for</div></div><label class="tog"><input type="checkbox" id="c-wsh"><div class="tog-t"></div><div class="tog-h"></div></label></div>
+        <div class="trow"><div><div class="tr-l">ISO</div><div class="tr-s">In Search Of — card you want</div></div><label class="tog"><input type="checkbox" id="c-wsh"><div class="tog-t"></div><div class="tog-h"></div></label></div>
         <div class="trow"><div><div class="tr-l">Duplicate</div><div class="tr-s">Extra copy available</div></div><label class="tog"><input type="checkbox" id="c-dup"><div class="tog-t"></div><div class="tog-h"></div></label></div>
       </div>
       <input type="file" id="ph-in" accept="image/*" multiple style="display:none" onchange="handlePh(event)">
@@ -475,7 +558,18 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
     <div id="fd-body" style="padding:14px;flex-shrink:0;border-bottom:1px solid var(--bd)"></div>
     <div style="padding:7px 14px 3px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">💬 Chat</div>
     <div class="msg-area" id="fd-msgs"></div>
-    <div class="msg-bar"><input class="inp" id="fd-msg" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"><button class="btn btn-p btn-sm" onclick="sendMsg()">Send</button></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('fd')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('fd')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('fd-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="fd-emoji"></div>
+      <div class="gif-panel" id="fd-gif">
+        <input class="inp gif-search-inp" id="fd-gif-q" placeholder="Search GIFs…" oninput="searchGif('fd')">
+        <div class="gif-grid" id="fd-gif-grid"></div>
+      </div>
+      <div class="msg-bar"><input class="inp" id="fd-msg" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"><button class="btn btn-p btn-sm" onclick="sendMsg()">Send</button></div>
+      <input type="file" id="fd-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('fd',event)">
   </div>
 </div>
 
@@ -519,7 +613,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
    
    SETUP: User pastes their Firebase DB URL (one time, 30 sec setup)
 ═══════════════════════════════════════════════════════════ */
-const FB_URL = 'https://tincasever1-default-rtdb.firebaseio.com'; // hardcoded — all users share this database
+const FB_URL = 'https://tincasever1-default-rtdb.firebaseio.com';
 
 async function fbGet(path) {
   const r = await fetch(FB_URL + path + '.json');
@@ -613,11 +707,13 @@ async function doSetup() {
     // Test the connection with a simple read
     const r = await fetch(url + '/tc_test.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:'"ok"' });
     if (!r.ok) throw new Error('Cannot reach database (' + r.status + '). Check your URL and make sure Rules are set to allow read/write.');
-            await loadAllData();
+    FB_URL = url;
+    localStorage.setItem('tc_fb_url', url);
+    await loadAllData();
     showLogin();
   } catch(e) {
     showErr('setup-err', e.message);
-    showLogin();
+    showScr('scr-setup');
   }
 }
 
@@ -646,13 +742,20 @@ window.onerror = function(msg, src, line) {
   return false;
 };
 
-// Firebase URL is hardcoded — no setup needed
+// Show file:// warning
+if (location.protocol === 'file:') {
+  const fw = document.getElementById('file-warning');
+  if (fw) fw.style.display = 'block';
+}
 
 let _initDone = false;
 function _init() {
   if (_initDone) return; _initDone = true;
   setTimeout(async () => {
-        try {
+    const url = localStorage.getItem('tc_fb_url');
+    if (!url) { showScr('scr-setup'); return; }
+    FB_URL = url;
+    try {
       await loadAllData();
       const rem = localStorage.getItem('tc_rem');
       if (rem) {
@@ -663,7 +766,7 @@ function _init() {
         }
       }
       showLogin();
-    } catch(e) { showLogin(); }
+    } catch(e) { showScr('scr-setup'); }
   }, 1800);
 }
 if (document.readyState==='complete'||document.readyState==='interactive') { _init(); }
@@ -825,6 +928,7 @@ function goTab(tab, btn) {
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   $('pn-'+tab).classList.add('on'); btn.classList.add('on');
   document.querySelector('.fab').style.display = tab==='vault' ? 'flex' : 'none';
+  if(tab==='chat'){setTimeout(()=>{chatTab('group',$('chat-chips').querySelector('.chip.on')||$('chat-chips').querySelector('.chip'));},80);}
   if (tab==='coll')  renderColl();
   if (tab==='trade') renderTrade();
   if (tab==='prof')  { renderProf(); renderProfRecent(); }
@@ -1021,7 +1125,7 @@ function renderColl() {
         <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
           <div><div class="cn">${keeps.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Keeping</div></div>
           <div style="flex:1">
-            ${[['Total in Vault',cards.length],['For Trade',cards.filter(c=>c.forTrade).length],['Wishlist',cards.filter(c=>c.wishlist).length],['Trades Done',doneT]].map(([l,v])=>`<div class="crow"><span style="color:var(--dm)">${l}</span><span style="font-weight:700">${v}</span></div>`).join('')}
+            ${[['Total in Vault',cards.length],['For Trade',cards.filter(c=>c.forTrade).length],['ISO',cards.filter(c=>c.wishlist).length],['Trades Done',doneT]].map(([l,v])=>`<div class="crow"><span style="color:var(--dm)">${l}</span><span style="font-weight:700">${v}</span></div>`).join('')}
           </div>
         </div>
       </div>
@@ -1266,6 +1370,380 @@ async function saveProf(){
 function handleAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),avatar:ev.target.result};await saveMyProfile(newP);// update avatar on trades too
 tradeList().forEach(t=>{if(t.posterUsername===ST.user.username){t.posterAvatar=ev.target.result;fbPatch('/trades/'+t.id,{posterAvatar:ev.target.result});}});renderProf();toast('Profile picture updated ✓');};r.readAsDataURL(f);e.target.value='';}
 function handleBg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),bgPhoto:ev.target.result};await saveMyProfile(newP);renderProf();toast('Cover photo updated ✓');};r.readAsDataURL(f);e.target.value='';}
+
+
+
+// ══════════════════════════════════════════════════════
+//  BACK BUTTON — stay in app
+// ══════════════════════════════════════════════════════
+window.addEventListener('popstate', function() {
+  const modal = document.querySelector('.ovl.on');
+  if (modal) { modal.classList.remove('on'); history.pushState({tc:'app'},''); return; }
+  if (!$('pn-vault')?.classList.contains('on')) {
+    const vBtn = $('nb-vault');
+    if (vBtn) goTab('vault', vBtn);
+  }
+  history.pushState({tc:'app'}, '');
+});
+
+// Push state on openM so back closes modals
+const _origOpenM = openM;
+// openM already defined above — patch it
+window._openM = function(id) { $(id).classList.add('on'); history.pushState({tc:'modal',id},''); };
+
+// ══════════════════════════════════════════════════════
+//  SOCIAL: FRIENDS, DMs, GROUP CHAT
+//  Firebase paths:
+//    /friends/{user}/{otherUser}  = true
+//    /friendRequests/{toUser}/{fromUser} = true
+//    /dms/{convId}/messages/{msgId}
+//    /groupChat/messages/{msgId}
+// ══════════════════════════════════════════════════════
+
+let ST_dmPartner = '';   // username of current DM conversation
+let ST_chatTab   = 'group';
+const EMOJIS = ['😊','😂','🥰','😍','🤩','😎','🥳','😭','😢','😅','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💗','💓','💞','💕','✨','🌸','🌺','🌹','🌷','🌻','⭐','🎉','🎊','🎁','🎵','🎶','🍀','🦋','🌈','🔥','💫','👑','💎','🃏','📸','🎴','🀄','🎭','👀','💅','🙌','👏','🤝','🫶','💪','🤞','✌️','🤙','👍','❤️‍🔥','💝','🫰'];
+
+// ── CHAT TAB SWITCHER ──
+function chatTab(tab, el) {
+  ST_chatTab = tab;
+  document.querySelectorAll('#chat-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  $('chat-group').style.display   = tab==='group'   ? 'flex' : 'none';
+  $('chat-dms').style.display     = tab==='dms'     ? 'block' : 'none';
+  $('chat-friends').style.display = tab==='friends' ? 'block' : 'none';
+  if (tab==='group')   loadGroupChat();
+  if (tab==='dms')     loadDMList();
+  if (tab==='friends') loadFriendsList();
+}
+
+// ── GROUP CHAT ──
+async function loadGroupChat() {
+  const msgs = await fbGet('/groupChat/messages');
+  renderChatMsgs('gc-msgs', msgs, false);
+}
+
+async function sendGroupMsg() {
+  const inp = $('gc-msg'); const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  const msgId = uid();
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, text, at: Date.now(), type:'text' };
+  await fbSet('/groupChat/messages/'+msgId, msg);
+  loadGroupChat();
+}
+
+// ── FRIEND REQUESTS ──
+async function sendFriendReq(toUser) {
+  await fbSet('/friendRequests/'+toUser+'/'+ST.user.username, { from: ST.user.username, at: Date.now() });
+  toast('Friend request sent! ♡');
+  openMem(toUser);
+}
+
+async function acceptFriend(fromUser) {
+  const me = ST.user.username;
+  await Promise.all([
+    fbSet('/friends/'+me+'/'+fromUser, true),
+    fbSet('/friends/'+fromUser+'/'+me, true),
+    fbSet('/friendRequests/'+me+'/'+fromUser, null),
+  ]);
+  toast('You are now friends! 💖');
+  openMem(fromUser);
+}
+
+async function getFriends() {
+  const data = await fbGet('/friends/'+ST.user.username);
+  return data ? Object.keys(data) : [];
+}
+
+async function getPendingRequests() {
+  const data = await fbGet('/friendRequests/'+ST.user.username);
+  return data ? Object.keys(data) : [];
+}
+
+async function getSentRequests() {
+  // Check which users have a request from me
+  return [];
+}
+
+// ── DMs ──
+function dmConvId(a, b) { return [a,b].sort().join('_'); }
+
+async function openDMWith(username) {
+  closeM('m-mem');
+  ST_dmPartner = username;
+  const d = ST.users[username] || {};
+  $('dm-t').textContent = d.displayName || username;
+  $('dm-msgs').innerHTML = '<div style="text-align:center;color:var(--mt);font-size:12px;padding:16px">Loading…</div>';
+  openM('m-dm');
+  history.pushState({tc:'modal',id:'m-dm'}, '');
+  const convId = dmConvId(ST.user.username, username);
+  const msgs = await fbGet('/dms/'+convId+'/messages');
+  renderChatMsgs('dm-msgs', msgs, true);
+}
+
+async function sendDM() {
+  const inp = $('dm-msg'); const text = inp.value.trim();
+  if (!text || !ST_dmPartner) return;
+  inp.value = '';
+  const convId = dmConvId(ST.user.username, ST_dmPartner);
+  const msgId = uid();
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, text, at: Date.now(), type:'text' };
+  await fbSet('/dms/'+convId+'/messages/'+msgId, msg);
+  const msgs = await fbGet('/dms/'+convId+'/messages');
+  renderChatMsgs('dm-msgs', msgs, true);
+}
+
+// ── DM LIST ──
+async function loadDMList() {
+  const friends = await getFriends();
+  const el = $('chat-dms');
+  if (!friends.length) { el.innerHTML = '<div class="empty"><div class="ei">💬</div><h3>No friends yet</h3><p>Add friends from the Members tab to start chatting!</p></div>'; return; }
+  el.innerHTML = friends.map(u => {
+    const d = ST.users[u] || {};
+    const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+    return `<div class="fcard" onclick="openDMWith('${esc(u)}')">
+      <div class="fcard-h"><div class="fav">${av}</div>
+      <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div>
+      <div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+      <div style="color:var(--pk2);font-size:18px">💬</div></div></div>`;
+  }).join('');
+}
+
+// ── FRIENDS LIST ──
+async function loadFriendsList() {
+  const friends = await getFriends();
+  const pending = await getPendingRequests();
+  const el = $('chat-friends');
+  let html = '';
+  if (pending.length) {
+    html += `<div class="st" style="margin-bottom:8px">Friend Requests <span style="color:var(--pk)">(${pending.length})</span></div>`;
+    html += pending.map(u => {
+      const d = ST.users[u] || {};
+      const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+      return `<div class="fcard"><div class="fcard-h"><div class="fav">${av}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+        <button class="btn btn-sm" style="background:var(--mn);color:#000;font-weight:700" onclick="acceptFriend('${esc(u)}')">Accept</button></div></div>`;
+    }).join('');
+    html += '<div class="divl"></div>';
+  }
+  if (friends.length) {
+    html += `<div class="st" style="margin-bottom:8px">Friends (${friends.length})</div>`;
+    html += friends.map(u => {
+      const d = ST.users[u] || {};
+      const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+      return `<div class="fcard" onclick="openDMWith('${esc(u)}')"><div class="fcard-h"><div class="fav">${av}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+        <div style="color:var(--pk2);font-size:18px">💬</div></div></div>`;
+    }).join('');
+  }
+  if (!friends.length && !pending.length) html = '<div class="empty"><div class="ei">👥</div><h3>No friends yet</h3><p>Find members in the Trade tab and add them as friends!</p></div>';
+  el.innerHTML = html;
+}
+
+// ── RENDER CHAT MESSAGES ──
+function renderChatMsgs(elId, msgs, isPrivate) {
+  const el = $(elId); if (!el) return;
+  if (!msgs) { el.innerHTML = '<div style="text-align:center;color:var(--mt);font-size:12px;padding:20px">No messages yet. Say hi! 👋</div>'; return; }
+  const sorted = Object.values(msgs).sort((a,b)=>a.at-b.at);
+  el.innerHTML = sorted.map(m => {
+    const me = m.username === ST.user?.username;
+    let bubble = '';
+    if (m.type === 'image') {
+      bubble = `<img src="${m.url}" class="msg-media" onclick="this.requestFullscreen?.()">`;
+    } else if (m.type === 'video') {
+      bubble = `<video src="${m.url}" class="msg-media" controls playsinline></video>`;
+    } else if (m.type === 'gif') {
+      bubble = `<img src="${m.url}" class="msg-gif">`;
+    } else {
+      bubble = `<div class="bbl ${me?'me':'them'}">${esc(m.text)}</div>`;
+    }
+    const avH = m.avatar ? `<img src="${m.avatar}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0">` : `<div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${(m.displayName||m.username||'?')[0].toUpperCase()}</div>`;
+    return `<div class="mw ${me?'me':'them'}">
+      ${!me?`<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">${avH}<div class="msnd">@${esc(m.username)}</div></div>`:''}
+      ${bubble}
+      <div class="mt-time">${fmtT(m.at)}</div>
+    </div>`;
+  }).join('');
+  setTimeout(() => el.scrollTop = el.scrollHeight, 50);
+}
+
+// ── EMOJI PICKER ──
+function buildEmojiTray(id) {
+  const el = $(id+'-emoji'); if (!el) return;
+  if (!el.innerHTML) el.innerHTML = EMOJIS.map(e=>`<span onclick="insertEmoji('${id}','${e}')">${e}</span>`).join('');
+}
+function toggleEmoji(id) {
+  buildEmojiTray(id);
+  const el = $(id+'-emoji'); if (!el) return;
+  el.classList.toggle('on');
+  const gif = $(id+'-gif'); if (gif) gif.classList.add('hidden');
+}
+function insertEmoji(id, emoji) {
+  const inp = $(id===('gc')?'gc-msg':id===('dm')?'dm-msg':'fd-msg');
+  if (!inp) return;
+  const pos = inp.selectionStart || inp.value.length;
+  inp.value = inp.value.slice(0,pos) + emoji + inp.value.slice(pos);
+  inp.focus();
+  $(id+'-emoji')?.classList.remove('on');
+}
+
+// ── GIF SEARCH (Tenor) ──
+let _gifT = {};
+function toggleGif(id) {
+  const el = $(id+'-gif'); if (!el) return;
+  el.classList.toggle('hidden');
+  const em = $(id+'-emoji'); if (em) em.classList.remove('on');
+  if (!el.classList.contains('hidden')) searchGif(id);
+}
+async function searchGif(id) {
+  const q = ($(id+'-gif-q')?.value||'').trim() || 'kpop';
+  clearTimeout(_gifT[id]);
+  _gifT[id] = setTimeout(async () => {
+    const grid = $(id+'-gif-grid'); if (!grid) return;
+    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Loading…</div>';
+    try {
+      const r = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyAyimkuYQYF_FXVALexPzpAGBQy_eMPeT&limit=12&media_filter=gif`);
+      const data = await r.json();
+      const results = data.results || [];
+      if (!results.length) { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">No GIFs found</div>'; return; }
+      grid.innerHTML = results.map(g => {
+        const url = g.media_formats?.tinygif?.url || g.media_formats?.gif?.url || '';
+        return `<img src="${url}" loading="lazy" onclick="sendGif('${id}','${url}')">`;
+      }).join('');
+    } catch { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Could not load GIFs</div>'; }
+  }, 400);
+}
+async function sendGif(id, url) {
+  $(id+'-gif')?.classList.add('hidden');
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, url, at: Date.now(), type:'gif' };
+  if (id === 'gc') {
+    await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
+  } else if (id === 'dm' && ST_dmPartner) {
+    const convId = dmConvId(ST.user.username, ST_dmPartner);
+    await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
+    const msgs = await fbGet('/dms/'+convId+'/messages');
+    renderChatMsgs('dm-msgs', msgs, true);
+  } else if (id === 'fd' && ST.viewTradeId) {
+    await fbSet('/trades/'+ST.viewTradeId+'/messages/'+uid(), msg);
+    const t = (ST.trades||{})[ST.viewTradeId];
+    if (t) { t.messages = t.messages||{}; t.messages[uid()] = msg; renderFolderMsgs(t); }
+  }
+}
+
+// ── PHOTO / VIDEO UPLOAD ──
+function triggerMedia(id) {
+  const inp = $(id+'-media-in'); if (inp) { inp.click(); return; }
+  // trade folder has fd-media-in
+  const fd = $('fd-media-in'); if (fd) fd.click();
+}
+
+async function sendMediaMsg(id, e) {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const isVideo = file.type.startsWith('video/');
+  // Read as dataURL (base64) - fine for small files
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const url = ev.target.result;
+    const msg = { username: ST.user.username, displayName: ST.user.displayName,
+      avatar: myProf().avatar||null, url, at: Date.now(), type: isVideo?'video':'image' };
+    if (id === 'gc') {
+      await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
+    } else if (id === 'dm' && ST_dmPartner) {
+      const convId = dmConvId(ST.user.username, ST_dmPartner);
+      await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
+      const msgs = await fbGet('/dms/'+convId+'/messages');
+      renderChatMsgs('dm-msgs', msgs, true);
+    } else if (id === 'fd' && ST.viewTradeId) {
+      await fbSet('/trades/'+ST.viewTradeId+'/messages/'+uid(), msg);
+      const t = (ST.trades||{})[ST.viewTradeId];
+      if (t) { if(!t.messages)t.messages={}; renderFolderMsgs(t); }
+      loadGroupChat();
+    }
+    toast('Media sent! 📸');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── MEMBER PROFILE: friend req + DM button ──
+const _origOpenMem = openMem;
+async function openMem(u) {
+  const d = ST.users[u]; if (!d) return;
+  $('mem-t').textContent = d.displayName || u;
+  const trades = tradeList().filter(t=>t.posterUsername===u&&t.status==='open');
+  const doneT = tradeList().filter(t=>t.posterUsername===u&&t.status==='completed').length;
+  const avH = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+  // Check friendship status
+  const [myFriendsData, theirReqsData] = await Promise.all([
+    fbGet('/friends/'+ST.user.username),
+    fbGet('/friendRequests/'+ST.user.username)
+  ]);
+  const myFriends = myFriendsData || {};
+  const myIncoming = theirReqsData || {};
+  const theirSent = (await fbGet('/friendRequests/'+u)) || {};
+  let frBtn = '';
+  if (myFriends[u]) {
+    frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}');closeM('m-mem')">💬 Message</button>`;
+  } else if (theirSent[ST.user.username]) {
+    frBtn = `<button class="friend-req-btn fr-accept" onclick="acceptFriend('${u}')">💖 Accept Request</button>`;
+  } else if (myIncoming[u]) {
+    frBtn = `<button class="friend-req-btn fr-pending">✓ Request Sent</button>`;
+  } else {
+    frBtn = `<button class="friend-req-btn fr-send" onclick="sendFriendReq('${u}')">+ Add Friend</button>`;
+  }
+  $('mem-body').innerHTML = `
+    <div style="background:linear-gradient(135deg,#1a0a2e,#2a0a1e);height:100px;display:flex;align-items:center;justify-content:center;position:relative">
+      ${d.profile?.bgPhoto?`<img src="${d.profile.bgPhoto}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5">`:''}
+      <div style="width:70px;height:70px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;border:3px solid var(--dk);position:relative;z-index:1">${avH}</div>
+    </div>
+    <div style="text-align:center;padding:10px 16px 0">
+      <div style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:900">${esc(d.displayName||u)}</div>
+      <div style="font-size:11px;color:var(--pk);margin-top:2px">@${esc(u)}</div>
+      ${d.profile?.bio?`<div style="font-size:12px;color:var(--dm);margin-top:6px;font-style:italic">${esc(d.profile.bio)}</div>`:''}
+      <div style="display:flex;justify-content:center;gap:22px;padding:12px 0">
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${(d.cards||[]).length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Cards</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${doneT}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Trades</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${trades.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Active</div></div>
+      </div>
+      <div style="padding:0 0 12px">${frBtn}</div>
+    </div>
+    <div style="padding:0 15px 20px">
+      <div class="divl"></div><div class="st">Active Trade Offers</div>
+      ${trades.length?trades.map(t=>folderHTML(t)).join(''):`<div class="empty"><div class="ei">🔄</div><h3>No active trades</h3></div>`}
+    </div>`;
+  openM('m-mem');
+}
+
+// ── EXTEND TRADE FOLDER WITH EMOJI/GIF/MEDIA ──
+// Patch openFolder to add chat toolbar after fd-msgs
+const _origOpenFolder = openFolder;
+function openFolder(id) {
+  _origOpenFolder(id);
+  // Add emoji/gif/media toolbar after msg area (already in HTML)
+}
+
+// Poll group chat when on chat tab
+const _origPollData = pollData;
+async function pollData() {
+  await _origPollData();
+  if ($('pn-chat')?.classList.contains('on') && ST_chatTab === 'group') {
+    loadGroupChat();
+  }
+}
+
+// Update goTab to handle chat tab
+const _origGoTab = goTab;
+function goTab(tab, btn) {
+  _origGoTab(tab, btn);
+  if (tab === 'chat') {
+    chatTab('group', $('chat-chips')?.querySelector('.chip.on') || $('chat-chips')?.querySelector('.chip'));
+    setTimeout(() => loadGroupChat(), 100);
+  }
+}
 
 </script>
 </body>
