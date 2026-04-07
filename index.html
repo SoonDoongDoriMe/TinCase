@@ -270,37 +270,10 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 <div id="app">
 
 <!-- SETUP -->
-<div id="scr-setup" class="scr on">
-  <div class="setup-box">
-    <div class="setup-logo">틴케이스</div>
-    <p style="text-align:center;font-size:11px;color:var(--mt);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px">One-Time Setup ✦</p>
-
-    <div id="file-warning" style="background:#ff1f6e18;border:1px solid var(--bdp);border-radius:10px;padding:12px;margin-bottom:18px;font-size:12px;color:var(--pk2);line-height:1.6;display:none">
-      ⚠️ <b>Open this from your Netlify URL</b>, not a downloaded file. Local files can't make network requests.
-    </div>
-
-    <p style="font-size:13px;color:var(--dm);line-height:1.6;margin-bottom:18px">틴케이스 uses Google Firebase — free forever, real-time sync across all devices.</p>
-
-    <div class="step"><div class="step-n">1</div><div><div class="step-t">Create a free Firebase project</div><div class="step-d">Go to <span class="step-lnk" onclick="window.open('https://console.firebase.google.com','_blank')">console.firebase.google.com</span> → <b>Create a project</b> → give it any name → continue until done.</div></div></div>
-
-    <div class="step"><div class="step-n">2</div><div><div class="step-t">Add a Realtime Database</div><div class="step-d">In your project → <b>Build</b> → <b>Realtime Database</b> → <b>Create Database</b> → choose any location → select <b>"Start in test mode"</b> → Enable.</div></div></div>
-
-    <div class="step"><div class="step-n">3</div><div><div class="step-t">Copy your Database URL</div><div class="step-d">It looks like: <b>https://myapp-default-rtdb.firebaseio.com</b><br>Copy it from the top of the Realtime Database page.</div></div></div>
-
-    <div class="step"><div class="step-n">4</div><div style="flex:1"><div class="step-t" style="margin-bottom:6px">Paste it here</div>
-      <input class="inp" id="setup-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="font-size:12px">
-      <div class="fh" style="margin-top:4px">Free forever. Saved on this device. Share with friends to trade together.</div>
-    </div></div>
-
-    <button class="btn btn-p" style="width:100%;margin-top:16px" onclick="doSetup()">Connect & Start ✦</button>
-    <div class="fh err hidden" id="setup-err" style="margin-top:8px;text-align:center;line-height:1.5"></div>
-    <div class="divl" style="margin-top:18px"></div>
-    <p style="font-size:10px;color:var(--mt);text-align:center;line-height:1.6">Test mode lets everyone read/write freely — perfect for a friend group. Firebase free tier = 1GB storage, 10GB/month transfer, no credit card.</p>
-  </div>
-</div>
+<!-- setup screen removed - Firebase URL hardcoded -->
 
 <!-- SPLASH -->
-<div id="scr-splash" class="scr">
+<div id="scr-splash" class="scr on">
   <div class="sp-wrap">
     <svg width="70" height="70" viewBox="0 0 192 192" style="filter:drop-shadow(0 0 18px var(--pg))"><rect width="192" height="192" rx="38" fill="#0f0a1e"/><rect x="22" y="34" width="68" height="108" rx="10" fill="#ff1f6e" opacity=".7"/><rect x="102" y="34" width="68" height="50" rx="10" fill="#ff1f6e" opacity=".6"/><rect x="102" y="94" width="30" height="48" rx="8" fill="#ff1f6e" opacity=".4"/><rect x="140" y="94" width="30" height="48" rx="8" fill="#ff1f6e" opacity=".4"/><text x="96" y="144" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-weight="900" font-size="88" fill="#ff8fc2">틴</text></svg>
     <div class="sp-kr">틴케이스</div>
@@ -424,7 +397,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
         <div class="divl"></div>
         <button class="btn btn-o" style="width:100%;margin-bottom:9px" onclick="openEditProf()">✏️ Edit Profile</button>
         <button class="btn btn-d" style="width:100%;margin-bottom:9px" onclick="doLogout()">Sign Out</button>
-        <button class="btn btn-g btn-sm" style="width:100%;font-size:10px" onclick="showScr('scr-setup')">⚙️ Change Database Key</button>
+
       </div>
     </div>
   </div>
@@ -546,7 +519,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
    
    SETUP: User pastes their Firebase DB URL (one time, 30 sec setup)
 ═══════════════════════════════════════════════════════════ */
-let FB_URL = ''; // e.g. https://myapp-default-rtdb.firebaseio.com
+const FB_URL = 'https://tincasever1-default-rtdb.firebaseio.com'; // hardcoded — all users share this database
 
 async function fbGet(path) {
   const r = await fetch(FB_URL + path + '.json');
@@ -621,7 +594,7 @@ document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e
    SETUP SCREEN
 ════════════════════════════════════════════════════════ */
 function showScr(id) {
-  ['scr-setup','scr-splash','scr-login'].forEach(s=>$(s).classList.remove('on'));
+  ['scr-splash','scr-login'].forEach(s=>$(s).classList.remove('on'));
   $('scr-app').classList.remove('on');
   if (id==='scr-app') $('scr-app').classList.add('on');
   else if ($(id)) $(id).classList.add('on');
@@ -640,13 +613,11 @@ async function doSetup() {
     // Test the connection with a simple read
     const r = await fetch(url + '/tc_test.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:'"ok"' });
     if (!r.ok) throw new Error('Cannot reach database (' + r.status + '). Check your URL and make sure Rules are set to allow read/write.');
-    FB_URL = url;
-    localStorage.setItem('tc_fb_url', url);
-    await loadAllData();
+            await loadAllData();
     showLogin();
   } catch(e) {
     showErr('setup-err', e.message);
-    showScr('scr-setup');
+    showLogin();
   }
 }
 
@@ -675,20 +646,13 @@ window.onerror = function(msg, src, line) {
   return false;
 };
 
-// Show file:// warning
-if (location.protocol === 'file:') {
-  const fw = document.getElementById('file-warning');
-  if (fw) fw.style.display = 'block';
-}
+// Firebase URL is hardcoded — no setup needed
 
 let _initDone = false;
 function _init() {
   if (_initDone) return; _initDone = true;
   setTimeout(async () => {
-    const url = localStorage.getItem('tc_fb_url');
-    if (!url) { showScr('scr-setup'); return; }
-    FB_URL = url;
-    try {
+        try {
       await loadAllData();
       const rem = localStorage.getItem('tc_rem');
       if (rem) {
@@ -699,7 +663,7 @@ function _init() {
         }
       }
       showLogin();
-    } catch(e) { showScr('scr-setup'); }
+    } catch(e) { showLogin(); }
   }, 1800);
 }
 if (document.readyState==='complete'||document.readyState==='interactive') { _init(); }
