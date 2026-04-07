@@ -694,28 +694,7 @@ function showScr(id) {
   else if ($(id)) $(id).classList.add('on');
 }
 
-async function doSetup() {
-  let url = $('setup-url').value.trim().replace(/\/+$/, '');
-  if (!url) { showErr('setup-err','Paste your Firebase Database URL'); return; }
-  if (!url.startsWith('https://')) url = 'https://' + url;
-  if (location.protocol === 'file:') {
-    showErr('setup-err','Open this from a web URL (Netlify), not a local file.');
-    return;
-  }
-  showScr('scr-splash');
-  try {
-    // Test the connection with a simple read
-    const r = await fetch(url + '/tc_test.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:'"ok"' });
-    if (!r.ok) throw new Error('Cannot reach database (' + r.status + '). Check your URL and make sure Rules are set to allow read/write.');
-    FB_URL = url;
-    localStorage.setItem('tc_fb_url', url);
-    await loadAllData();
-    showLogin();
-  } catch(e) {
-    showErr('setup-err', e.message);
-    showScr('scr-setup');
-  }
-}
+// doSetup removed — Firebase URL is hardcoded
 
 /* ════════════════════════════════════════════════════════
    LOAD DATA
@@ -751,23 +730,23 @@ if (location.protocol === 'file:') {
 let _initDone = false;
 function _init() {
   if (_initDone) return; _initDone = true;
+  // FB_URL is hardcoded — skip setup, load directly
   setTimeout(async () => {
-    const url = localStorage.getItem('tc_fb_url');
-    if (!url) { showScr('scr-setup'); return; }
-    FB_URL = url;
     try {
       await loadAllData();
       const rem = localStorage.getItem('tc_rem');
       if (rem) {
-        const { username } = JSON.parse(rem);
-        if (ST.users[username]) {
-          ST.user = { username, displayName: ST.users[username].displayName || username };
-          showApp(); return;
-        }
+        try {
+          const { username } = JSON.parse(rem);
+          if (ST.users[username]) {
+            ST.user = { username, displayName: ST.users[username].displayName || username };
+            showApp(); return;
+          }
+        } catch(pe) {}
       }
       showLogin();
-    } catch(e) { showScr('scr-setup'); }
-  }, 1800);
+    } catch(e) { showLogin(); }
+  }, 1200);
 }
 if (document.readyState==='complete'||document.readyState==='interactive') { _init(); }
 else { document.addEventListener('DOMContentLoaded',_init); window.addEventListener('load',_init); }
