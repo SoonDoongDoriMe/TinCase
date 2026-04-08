@@ -288,6 +288,17 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 .gif-search-inp{padding:7px 10px;width:100%;}
 .msg-media{max-width:220px;border-radius:10px;margin-top:4px;display:block;cursor:pointer;}
 video.msg-media{max-width:220px;}
+
+/* ── BACK BAR ── */
+#back-bar{display:none;position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;z-index:150;
+  background:rgba(13,13,24,.97);border-bottom:1px solid var(--bdp);
+  padding:10px 14px calc(10px);
+  display:none;align-items:center;gap:10px;}
+#back-bar.on{display:flex;}
+#back-bar-btn{background:none;border:none;cursor:pointer;color:var(--pk2);font-size:14px;font-weight:700;
+  display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;}
+#back-bar-btn:active{background:var(--pp);}
+#back-bar-title{font-size:13px;font-weight:600;color:var(--dm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 </style>
 <div id="app">
 
@@ -333,6 +344,15 @@ video.msg-media{max-width:220px;}
 
 <!-- MAIN APP -->
 <div id="scr-app">
+
+  <!-- PHYSICAL BACK BUTTON BAR -->
+  <div id="back-bar">
+    <button id="back-bar-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+      Back
+    </button>
+    <span id="back-bar-title"></span>
+  </div>
 
   <!-- VAULT -->
   <div id="pn-vault" class="pane on">
@@ -697,7 +717,12 @@ function toast(msg, dur=2600) {
   clearTimeout(_toastT); _toastT=setTimeout(()=>{e.style.opacity=0;e.style.transform='translateX(-50%) translateY(20px)';},dur);
 }
 function flashSave() { const e=$('si'); e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),1800); }
-function openM(id)  { $(id).classList.add('on'); history.pushState({tc:'modal',id:id},''); }
+function openM(id) {
+  $(id).classList.add('on');
+  history.pushState({tc:'modal',id:id},'');
+  // Show back button in all modals
+  updateBackBar(true, '');
+}
 function closeM(id) { $(id).classList.remove('on'); }
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
 
@@ -927,6 +952,9 @@ function goTab(tab, btn) {
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   $('pn-'+tab).classList.add('on'); btn.classList.add('on');
   document.querySelector('.fab').style.display = tab==='vault' ? 'flex' : 'none';
+  // Show/hide back bar based on tab
+  const tabNames={vault:'Vault',coll:'Collection',trade:'Trades',chat:'Messages',prof:'Profile'};
+  updateBackBar(tab!=='vault', tabNames[tab]||'');
   if(tab==='chat'){ST_chatTab='dms';setTimeout(()=>{const fc=$('chat-chips')?.querySelector('.chip'); if(fc){fc.classList.add('on');} loadDMList();},80);}
   if (tab==='coll')  renderColl();
   if (tab==='trade') { ST.tf='trade'; renderTrade(); }
@@ -1656,6 +1684,27 @@ function handleBg(e){const f=e.target.files[0];if(!f)return;const r=new FileRead
 // ══════════════════════════════════════════════════════
 //  BACK BUTTON — stay in app
 // ══════════════════════════════════════════════════════
+// ── NAVIGATION STACK ──
+var _navStack = []; // track modal/page history
+
+function updateBackBar(show, title) {
+  var bar = $('back-bar');
+  if (!bar) return;
+  bar.classList.toggle('on', show);
+  var t = $('back-bar-title'); if (t) t.textContent = title || '';
+  // Add padding to app content so back bar doesn't overlap
+  var app = $('scr-app'); 
+  if (app) app.style.paddingTop = show ? '44px' : '0';
+}
+
+function goBack() {
+  // First close any open modal
+  var modal = document.querySelector('.ovl.on');
+  if (modal) { modal.classList.remove('on'); return; }
+  // Otherwise go back via history
+  history.back();
+}
+
 window.addEventListener('popstate', function() {
   if (ST._skipPopstate) return;
   const modal = document.querySelector('.ovl.on');
@@ -1959,27 +2008,81 @@ async function openMem(u) {
     // No relationship — show Add Friend
     frBtn = `<button class="friend-req-btn fr-send" onclick="sendFriendReq('${u}')">+ Add Friend</button>`;
   }
+  // Trades between ME and this user (I'm involved in)
+  const sharedTrades = tradeList().filter(t =>
+    t.status === 'open' && (
+      // They posted, I messaged
+      (t.posterUsername === u && Object.values(t.messages||{}).some(m=>m.username===ST.user.username)) ||
+      // I posted, they messaged
+      (t.posterUsername === ST.user.username && Object.values(t.messages||{}).some(m=>m.username===u))
+    )
+  );
+  // All their open trade offers (for browsing)
+  const theirOffers = trades.filter(t => !sharedTrades.find(s=>s.id===t.id));
+
   $('mem-body').innerHTML = `
-    <div style="background:linear-gradient(135deg,#1a0a2e,#2a0a1e);height:100px;display:flex;align-items:center;justify-content:center;position:relative">
+    <div style="background:linear-gradient(135deg,#1a0a2e,#2a0a1e);height:110px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0">
       ${d.profile?.bgPhoto?`<img src="${d.profile.bgPhoto}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5">`:''}
       <div style="width:70px;height:70px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;border:3px solid var(--dk);position:relative;z-index:1">${avH}</div>
     </div>
-    <div style="text-align:center;padding:10px 16px 0">
+    <div style="padding:10px 16px 0;text-align:center">
       <div style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:900">${esc(d.displayName||u)}</div>
       <div style="font-size:11px;color:var(--pk);margin-top:2px">@${esc(u)}</div>
       ${d.profile?.bio?`<div style="font-size:12px;color:var(--dm);margin-top:6px;font-style:italic">${esc(d.profile.bio)}</div>`:''}
       <div style="display:flex;justify-content:center;gap:22px;padding:12px 0">
         <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${(d.cards||[]).length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Cards</div></div>
-        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${doneT}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Trades</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${doneT}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Done</div></div>
         <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${trades.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Active</div></div>
       </div>
-      <div style="padding:0 0 12px">${frBtn}</div>
+      <div style="padding:0 0 10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${frBtn}</div>
     </div>
-    <div style="padding:0 15px 20px">
-      <div class="divl"></div><div class="st">Active Trade Offers</div>
-      ${trades.length?trades.map(t=>folderHTML(t)).join(''):`<div class="empty"><div class="ei">🔄</div><h3>No active trades</h3></div>`}
+    <div style="padding:0 15px 20px;overflow-y:auto;flex:1">
+      ${sharedTrades.length ? `
+        <div class="divl"></div>
+        <div class="st" style="margin-bottom:8px">💬 Your Trades Together</div>
+        ${sharedTrades.map(t=>memFolderHTML(t,u)).join('')}
+      ` : ''}
+      <div class="divl"></div>
+      <div class="st" style="margin-bottom:8px">🔄 Their Active Offers</div>
+      ${theirOffers.length
+        ? theirOffers.map(t=>memFolderHTML(t,u)).join('')
+        : `<div style="color:var(--mt);font-size:13px;text-align:center;padding:16px">No active trade offers</div>`
+      }
     </div>`;
   openM('m-mem');
+}
+
+// Folder HTML used inside member profile — opens trade folder stacked on top
+function memFolderHTML(t, viewingUser) {
+  const msgs = Object.values(t.messages||{});
+  const lm = msgs.sort((a,b)=>a.at-b.at).slice(-1)[0];
+  const prev = lm ? (lm.type&&lm.type!=='text'?'📸 Photo/GIF':`${lm.username===ST.user?.username?'You':lm.username}: ${lm.text}`) : 'No messages yet';
+  const stag = t.status==='completed'?'<span class="tag tg-m">✓ Done</span>':'<span class="tag tg-p">🔄 Open</span>';
+  const avH = t.posterAvatar?`<img src="${t.posterAvatar}">`:(t.posterDisplayName||'?')[0].toUpperCase();
+  var offPhoto = t.offeringCardPhoto || null;
+  if (!offPhoto) {
+    var oc = (ST.users[t.posterUsername]?.cards||[]).find(function(c){return c.id===t.offeringCardId;});
+    if(oc) offPhoto = oc.photos?.[0]||null;
+  }
+  const thumb = offPhoto
+    ? `<img src="${offPhoto}" style="width:40px;height:60px;object-fit:cover;border-radius:7px;flex-shrink:0;border:1.5px solid var(--bdp)">`
+    : `<div style="width:40px;height:60px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🃏</div>`;
+  return `<div class="fcard" onclick="openFolderFromMem('${t.id}')">
+    <div class="fcard-h">
+      <div class="fav">${avH}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${esc(t.posterDisplayName||t.posterUsername)} <span style="font-size:10px;color:var(--mt);font-weight:400">@${esc(t.posterUsername)}</span></div>
+        <div style="font-size:10px;color:var(--mt);margin-top:1px">Wants: <b style="color:var(--tx)">${esc(t.wantMember)}</b> · ${esc(t.wantArtist)}</div>
+      </div>
+      ${thumb}${stag}
+    </div>
+    <div class="fcard-msg">${esc(prev)}</div>
+  </div>`;
+}
+
+// Open trade folder while keeping member profile in the stack
+function openFolderFromMem(tradeId) {
+  openFolder(tradeId);
 }
 
 // openFolder: emoji/gif toolbar already in HTML
