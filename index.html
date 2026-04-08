@@ -1306,7 +1306,7 @@ function renderTrade() {
   const myFavs = myData().favourites || {};
 
   // Build a lookup table: index → {owner, cardId}
-  // onclick calls tradeCardClick(index) — zero escaping issues
+  // Reset on each render — indices are always fresh
   window._tradeCards = [];
 
   let results = [];
@@ -1364,9 +1364,8 @@ function renderTrade() {
 }
 
 function tradeCardClick(idx) {
-  console.log('tradeCardClick', idx, window._tradeCards && window._tradeCards[idx]);
-  var entry = window._tradeCards[idx];
-  if (!entry) { toast('Tap error — please try again'); return; }
+  var entry = window._tradeCards && window._tradeCards[idx];
+  if (!entry) { toast('Loading… please tap again'); renderTrade(); return; }
   if (entry.owner === ST.user?.username) {
     openDet(entry.cardId);
   } else {
@@ -1961,7 +1960,7 @@ window.addEventListener('popstate', function() {
 // ══════════════════════════════════════════════════════
 
 let ST_dmPartner = '';   // username of current DM conversation
-let ST_chatTab   = 'group';
+let ST_chatTab   = 'dms';
 const EMOJIS = [
   // Faces & emotions
   '😊','😂','🤣','🥰','😍','🤩','😎','🥳','🤗','😇','🤭','😏','🥺','😭','😢','😤','😅','😬','🤔','😶','😑','🫠','🥹','😮','😲','🫨',
@@ -1987,10 +1986,10 @@ const EMOJIS = [
 function chatTab(tab, el) {
   ST_chatTab = tab;
   document.querySelectorAll('#chat-chips .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');
-  $('chat-group').style.display   = tab==='group'   ? 'flex' : 'none';
-  $('chat-dms').style.display     = tab==='dms'     ? 'block' : 'none';
-  $('chat-friends').style.display = tab==='friends' ? 'block' : 'none';
+  if (el) el.classList.add('on');
+  var dms = $('chat-dms'), fr = $('chat-friends');
+  if (dms) dms.style.display  = tab==='dms'     ? 'block' : 'none';
+  if (fr)  fr.style.display   = tab==='friends' ? 'block' : 'none';
   if (tab==='dms')     loadDMList();
   if (tab==='friends') loadFriendsList();
 }
