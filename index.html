@@ -206,7 +206,7 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 
 /* PROFILE */
 .pcover{width:100%;height:155px;position:relative;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1a0a2e,#2a0a1e);cursor:pointer;}
-.pcover img{width:100%;height:100%;object-fit:cover;}
+.pcover img{width:100%;height:100%;object-fit:cover;object-position:center var(--cover-y, 50%);}
 .pcover-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(8,8,15,.85) 100%);}
 .pcover-btn{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;color:#fff;}
 .pav-wrap{position:relative;margin:-40px auto 0;width:80px;z-index:5;text-align:center;}
@@ -299,6 +299,14 @@ video.msg-media{max-width:220px;}
   display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;}
 #back-bar-btn:active{background:var(--pp);}
 #back-bar-title{font-size:13px;font-weight:600;color:var(--dm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── COVER PHOTO DRAG ── */
+#cover-drag-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.7);flex-direction:column;align-items:stretch;}
+#cover-drag-overlay.on{display:flex;}
+#cover-drag-preview{position:relative;width:100%;height:200px;overflow:hidden;background:#000;flex-shrink:0;cursor:ns-resize;}
+#cover-drag-preview img{width:100%;height:100%;object-fit:cover;object-position:center var(--cp, 50%);user-select:none;pointer-events:none;}
+#cover-drag-hint{color:#fff;font-size:13px;text-align:center;padding:14px;opacity:.85;}
+#cover-drag-btns{display:flex;gap:10px;padding:0 16px 32px;}
 </style>
 <div id="app">
 
@@ -483,8 +491,11 @@ video.msg-media{max-width:220px;}
       </div>
       <div class="emoji-tray" id="dm-emoji"></div>
       <div class="gif-panel" id="dm-gif">
-        <input class="inp gif-search-inp" id="dm-gif-q" placeholder="Search GIFs…" oninput="searchGif('dm')">
-        <div class="gif-grid" id="dm-gif-grid"></div>
+        <div style="padding:6px 8px 0;display:flex;gap:6px;align-items:center">
+          <input class="inp" id="dm-gif-q" placeholder="Search GIFs… (e.g. kpop, cute, wow)" oninput="searchGif('dm')" style="flex:1;padding:7px 10px;font-size:12px">
+          <button class="chat-tb-btn" onclick="toggleGif('dm')" style="font-size:16px;padding:4px 8px">✕</button>
+        </div>
+        <div class="gif-grid" id="dm-gif-grid" style="padding:7px;max-height:200px;overflow-y:auto"></div>
       </div>
       <div class="msg-bar">
         <input class="inp" id="dm-msg" placeholder="Send a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDM()}">
@@ -581,8 +592,11 @@ video.msg-media{max-width:220px;}
       </div>
       <div class="emoji-tray" id="fd-emoji"></div>
       <div class="gif-panel" id="fd-gif">
-        <input class="inp gif-search-inp" id="fd-gif-q" placeholder="Search GIFs…" oninput="searchGif('fd')">
-        <div class="gif-grid" id="fd-gif-grid"></div>
+        <div style="padding:6px 8px 0;display:flex;gap:6px;align-items:center">
+          <input class="inp" id="fd-gif-q" placeholder="Search GIFs… (e.g. kpop, cute, wow)" oninput="searchGif('fd')" style="flex:1;padding:7px 10px;font-size:12px">
+          <button class="chat-tb-btn" onclick="toggleGif('fd')" style="font-size:16px;padding:4px 8px">✕</button>
+        </div>
+        <div class="gif-grid" id="fd-gif-grid" style="padding:7px;max-height:200px;overflow-y:auto"></div>
       </div>
       <div class="msg-bar"><input class="inp" id="fd-msg" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"><button class="btn btn-p btn-sm" onclick="sendMsg()">Send</button></div>
       <input type="file" id="fd-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('fd',event)">
@@ -649,6 +663,18 @@ video.msg-media{max-width:220px;}
     </div>
     <div id="cdet-gal"></div>
     <div id="cdet-inf" style="padding:16px"></div>
+  </div>
+</div>
+
+<!-- COVER PHOTO DRAG OVERLAY -->
+<div id="cover-drag-overlay">
+  <div id="cover-drag-preview">
+    <img id="cover-drag-img" src="" alt="">
+  </div>
+  <div id="cover-drag-hint">☝️ Drag up/down to reposition your cover photo</div>
+  <div id="cover-drag-btns">
+    <button class="btn btn-g" style="flex:1" onclick="cancelCoverDrag()">Cancel</button>
+    <button class="btn btn-p" style="flex:1" onclick="saveCoverPosition()">Save Position ✓</button>
   </div>
 </div>
 
@@ -1673,8 +1699,13 @@ function renderProf(){
   const p=myProf(); const u=ST.user; if(!u)return;
   const cover=$('pn-prof').querySelector('.pcover');
   let ci=cover.querySelector('img.cover-photo');
-  if(p.bgPhoto){if(!ci){ci=document.createElement('img');ci.className='cover-photo';cover.insertBefore(ci,cover.firstChild);}ci.src=p.bgPhoto;}
-  else if(ci)ci.remove();
+  if(p.bgPhoto){
+    if(!ci){ci=document.createElement('img');ci.className='cover-photo';cover.insertBefore(ci,cover.firstChild);}
+    ci.src=p.bgPhoto;
+    // Apply saved Y position
+    const coverY = p.bgPhotoY !== undefined ? p.bgPhotoY : 50;
+    cover.style.setProperty('--cover-y', coverY+'%');
+  } else if(ci) ci.remove();
   const av=$('pav'); av.innerHTML=p.avatar?`<img src="${p.avatar}">`:`<span>${(u.displayName||u.username||'?')[0].toUpperCase()}</span>`;
   $('p-nm').textContent=u.displayName; $('p-hndl').textContent='@'+u.username;
   const bio=$('p-bio'); if(p.bio&&p.bio.trim()){bio.textContent=p.bio;bio.classList.remove('hidden');}else bio.classList.add('hidden');
@@ -1727,16 +1758,82 @@ function handleAv(e){
 }
 function handleBg(e){
   const f=e.target.files[0]; if(!f)return;
-  // Resize + banner-crop to 1200x400 for cover
-  resizeImage(f, 1200, 400, 'banner', function(dataUrl) {
-    saveMyProfile({...myProf(), bgPhoto:dataUrl}).then(()=>{
-      renderProf();
-      const bgPrev=$('ep-bg-preview');
-      if(bgPrev) bgPrev.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">`;
-      toast('Cover photo updated ✓');
-    });
+  // Don't crop — keep full image so user can drag to position
+  resizeImage(f, 1400, 1400, 'fit', function(dataUrl) {
+    _pendingCoverPhoto = dataUrl;
+    _pendingCoverY = myProf().bgPhotoY || 50;
+    // Show drag overlay
+    const img = $('cover-drag-img');
+    if(img) img.src = dataUrl;
+    updateCoverDragPreview(_pendingCoverY);
+    const ov = $('cover-drag-overlay');
+    if(ov) ov.classList.add('on');
+    setupCoverDrag();
   });
   e.target.value='';
+}
+
+var _pendingCoverPhoto = null;
+var _pendingCoverY = 50;
+var _coverDragStartY = 0;
+var _coverDragStartPos = 50;
+var _coverDragging = false;
+
+function updateCoverDragPreview(yPct) {
+  const preview = $('cover-drag-preview');
+  if(preview) preview.style.setProperty('--cp', yPct+'%');
+}
+
+function setupCoverDrag() {
+  const preview = $('cover-drag-preview');
+  if(!preview) return;
+
+  function onStart(e) {
+    _coverDragging = true;
+    _coverDragStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    _coverDragStartPos = _pendingCoverY;
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if(!_coverDragging) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const dy = clientY - _coverDragStartY;
+    const h = preview.offsetHeight;
+    // Dragging down = move image up (lower Y%) — drag up = move image down (higher Y%)
+    const delta = (dy / h) * 100;
+    _pendingCoverY = Math.max(0, Math.min(100, _coverDragStartPos - delta));
+    updateCoverDragPreview(_pendingCoverY);
+    e.preventDefault();
+  }
+  function onEnd() { _coverDragging = false; }
+
+  // Remove old listeners and add fresh ones
+  preview.removeEventListener('mousedown', preview._mdHandler);
+  preview.removeEventListener('touchstart', preview._tsHandler);
+  preview._mdHandler = onStart; preview._tsHandler = onStart;
+  preview.addEventListener('mousedown', onStart, {passive:false});
+  preview.addEventListener('touchstart', onStart, {passive:false});
+  document.addEventListener('mousemove', onMove, {passive:false});
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchend', onEnd);
+}
+
+async function saveCoverPosition() {
+  if(!_pendingCoverPhoto) return;
+  const newP = {...myProf(), bgPhoto:_pendingCoverPhoto, bgPhotoY:Math.round(_pendingCoverY)};
+  await saveMyProfile(newP);
+  const ov = $('cover-drag-overlay'); if(ov) ov.classList.remove('on');
+  renderProf();
+  const bgPrev=$('ep-bg-preview');
+  if(bgPrev) bgPrev.innerHTML=`<img src="${_pendingCoverPhoto}" style="width:100%;height:100%;object-fit:cover">`;
+  _pendingCoverPhoto = null;
+  toast('Cover photo saved ✓');
+}
+
+function cancelCoverDrag() {
+  const ov=$('cover-drag-overlay'); if(ov) ov.classList.remove('on');
+  _pendingCoverPhoto = null;
 }
 
 // ── IMAGE RESIZE + CROP UTILITY ──
@@ -2062,34 +2159,39 @@ async function searchGif(id) {
   clearTimeout(_gifT[id]);
   _gifT[id] = setTimeout(async () => {
     const grid = $(id+'-gif-grid'); if (!grid) return;
-    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px;text-align:center"><span class="spin"></span> Loading GIFs…</div>';
+    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center">🔍 Loading GIFs…</div>';
+    let loaded = false;
+
+    // Try Giphy public beta API (no key needed, free)
     try {
-      // Tenor v1 API — no key needed for basic search
-      const url = 'https://tenor.com/v1/search?q='+encodeURIComponent(q)+'&limit=16&contentfilter=medium&media_filter=minimal';
-      const r = await fetch(url);
-      if (!r.ok) throw new Error('status '+r.status);
-      const data = await r.json();
-      const results = data.results || [];
-      if (!results.length) {
-        grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px;text-align:center">No GIFs found for "'+q+'"</div>';
-        return;
+      const giphyUrl = 'https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q='+encodeURIComponent(q)+'&limit=12&rating=pg';
+      const r = await fetch(giphyUrl);
+      if (r.ok) {
+        const data = await r.json();
+        const results = (data.data||[]);
+        if (results.length) {
+          grid.innerHTML = results.map(g => {
+            const url = g.images?.fixed_height_small?.url || g.images?.downsized?.url || g.images?.original?.url || '';
+            if (!url) return '';
+            return `<img src="${url}" loading="lazy" onclick="sendGif('${id}','${url}')" style="cursor:pointer;width:100%;border-radius:6px;aspect-ratio:16/9;object-fit:cover">`;
+          }).filter(Boolean).join('');
+          loaded = true;
+        }
       }
-      grid.innerHTML = results.map(g => {
-        const tiny = g.media?.[0]?.tinygif?.url || g.media?.[0]?.gif?.url || '';
-        if (!tiny) return '';
-        return `<img src="${tiny}" loading="lazy" onclick="sendGif('${id}','${tiny}')" style="cursor:pointer">`;
-      }).filter(Boolean).join('');
-    } catch(e) {
-      // Fallback: show a message with direct Tenor link
-      grid.innerHTML = `<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center;line-height:1.6">
-        GIF search unavailable.<br>
-        <a href="https://tenor.com/search/${encodeURIComponent(q)}" target="_blank" style="color:var(--pk2)">Open Tenor ↗</a>
+    } catch(e) {}
+
+    if (!loaded) {
+      // Show link to Tenor/Giphy to pick manually
+      grid.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.8;font-size:12px;color:var(--dm)">
+        <div style="margin-bottom:8px">Search GIFs on:</div>
+        <a href="https://tenor.com/search/${encodeURIComponent(q)}-gif" target="_blank" style="display:inline-block;padding:6px 14px;background:var(--pk);color:#fff;border-radius:99px;text-decoration:none;font-weight:700;margin:3px">Tenor ↗</a>
+        <a href="https://giphy.com/search/${encodeURIComponent(q)}" target="_blank" style="display:inline-block;padding:6px 14px;background:var(--sf2);color:var(--tx);border-radius:99px;text-decoration:none;font-weight:700;margin:3px">Giphy ↗</a>
       </div>`;
     }
-  }, 400);
+  }, 500);
 }
 async function sendGif(id, url) {
-  $(id+'-gif')?.classList.add('hidden');
+  $(id+'-gif')?.classList.remove('on');
   const msg = { username: ST.user.username, displayName: ST.user.displayName,
     avatar: myProf().avatar||null, url, at: Date.now(), type:'gif' };
   if (id === 'dm' && ST_dmPartner) {
