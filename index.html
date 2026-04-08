@@ -666,23 +666,23 @@ video.msg-media{max-width:220px;}
   </div>
 </div>
 
-<!-- COVER PHOTO DRAG OVERLAY -->
-<div id="cover-drag-overlay">
-  <div id="cover-drag-preview">
-    <img id="cover-drag-img" src="" alt="">
-  </div>
-  <div id="cover-drag-hint">☝️ Drag up/down to reposition your cover photo</div>
-  <div id="cover-drag-btns">
-    <button class="btn btn-g" style="flex:1" onclick="cancelCoverDrag()">Cancel</button>
-    <button class="btn btn-p" style="flex:1" onclick="saveCoverPosition()">Save Position ✓</button>
-  </div>
-</div>
-
 <input type="file" id="av-in" accept="image/*" style="display:none" onchange="handleAv(event)">
 <input type="file" id="bg-in" accept="image/*" style="display:none" onchange="handleBg(event)">
 <div class="save-ind" id="si">✓ Saved to cloud</div>
 <div id="toast-el" style="position:fixed;bottom:calc(var(--nh)+14px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--sf2);border:1px solid var(--bdp);border-radius:99px;padding:9px 16px;font-size:12px;font-weight:600;color:var(--tx);z-index:9999;white-space:nowrap;box-shadow:var(--sh);opacity:0;transition:all .3s;pointer-events:none"></div>
 
+</div><!-- end #app -->
+
+<!-- COVER PHOTO DRAG OVERLAY — outside #app so fixed positioning works -->
+<div id="cover-drag-overlay">
+  <div id="cover-drag-preview">
+    <img id="cover-drag-img" src="" alt="" draggable="false">
+  </div>
+  <div id="cover-drag-hint">☝️ Drag up / down to reposition · release to preview</div>
+  <div id="cover-drag-btns">
+    <button class="btn btn-g" style="flex:1" onclick="cancelCoverDrag()">Cancel</button>
+    <button class="btn btn-p" style="flex:1" onclick="saveCoverPosition()">Save ✓</button>
+  </div>
 </div>
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -764,8 +764,13 @@ function flashSave() { const e=$('si'); e.classList.add('on'); clearTimeout(e._t
 function openM(id) {
   $(id).classList.add('on');
   history.pushState({tc:'modal',id:id},'');
-  // Show back button in all modals
-  updateBackBar(true, '');
+  // Show back bar with contextual title
+  const titles = {
+    'm-card':'Add / Edit Card', 'm-det':'Card Detail', 'm-prop':'New Trade Offer',
+    'm-fold':'Trade', 'm-srch':'Search', 'm-ep':'Edit Profile',
+    'm-mem':'Member Profile', 'm-cdet':'Card Detail', 'm-dm':'Messages'
+  };
+  updateBackBar(true, titles[id] || '');
 }
 function closeM(id) { $(id).classList.remove('on'); }
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
@@ -1915,7 +1920,17 @@ function updateBackBar(show, title) {
 function goBack() {
   // First close any open modal
   var modal = document.querySelector('.ovl.on');
-  if (modal) { modal.classList.remove('on'); return; }
+  if (modal) {
+    modal.classList.remove('on');
+    // Check if another modal is still open
+    var stillOpen = document.querySelector('.ovl.on');
+    if (!stillOpen) {
+      // No more modals — check if we're on vault
+      var onVault = $('pn-vault')?.classList.contains('on');
+      updateBackBar(!onVault, '');
+    }
+    return;
+  }
   // Otherwise go back via history
   history.back();
 }
@@ -2019,7 +2034,7 @@ async function getSentRequests() {
 function dmConvId(a, b) { return [a,b].sort().join('_'); }
 
 async function openDMWith(username) {
-  closeM('m-mem');
+  // Don't close m-mem — stack m-dm on top so back returns to profile
   ST_dmPartner = username;
   const d = ST.users[username] || {};
   $('dm-t').textContent = d.displayName || username;
@@ -2159,36 +2174,38 @@ async function searchGif(id) {
   clearTimeout(_gifT[id]);
   _gifT[id] = setTimeout(async () => {
     const grid = $(id+'-gif-grid'); if (!grid) return;
-    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center">🔍 Loading GIFs…</div>';
-    let loaded = false;
+    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center">🔍 Searching…</div>';
 
-    // Try Giphy public beta API (no key needed, free)
+    // Use Giphy public API with public beta key (works browser-side)
+    const key = 'dc6zaTOxFJmzC'; // public beta key - no restrictions
     try {
-      const giphyUrl = 'https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q='+encodeURIComponent(q)+'&limit=12&rating=pg';
-      const r = await fetch(giphyUrl);
-      if (r.ok) {
-        const data = await r.json();
-        const results = (data.data||[]);
-        if (results.length) {
-          grid.innerHTML = results.map(g => {
-            const url = g.images?.fixed_height_small?.url || g.images?.downsized?.url || g.images?.original?.url || '';
-            if (!url) return '';
-            return `<img src="${url}" loading="lazy" onclick="sendGif('${id}','${url}')" style="cursor:pointer;width:100%;border-radius:6px;aspect-ratio:16/9;object-fit:cover">`;
-          }).filter(Boolean).join('');
-          loaded = true;
-        }
-      }
-    } catch(e) {}
-
-    if (!loaded) {
-      // Show link to Tenor/Giphy to pick manually
-      grid.innerHTML = `<div style="padding:12px;text-align:center;line-height:1.8;font-size:12px;color:var(--dm)">
-        <div style="margin-bottom:8px">Search GIFs on:</div>
-        <a href="https://tenor.com/search/${encodeURIComponent(q)}-gif" target="_blank" style="display:inline-block;padding:6px 14px;background:var(--pk);color:#fff;border-radius:99px;text-decoration:none;font-weight:700;margin:3px">Tenor ↗</a>
-        <a href="https://giphy.com/search/${encodeURIComponent(q)}" target="_blank" style="display:inline-block;padding:6px 14px;background:var(--sf2);color:var(--tx);border-radius:99px;text-decoration:none;font-weight:700;margin:3px">Giphy ↗</a>
+      const endpoint = q
+        ? `https://api.giphy.com/v1/gifs/search?api_key=${key}&q=${encodeURIComponent(q)}&limit=15&rating=g`
+        : `https://api.giphy.com/v1/gifs/trending?api_key=${key}&limit=15&rating=g`;
+      const resp = await fetch(endpoint, { mode: 'cors' });
+      const json = await resp.json();
+      const items = json.data || [];
+      if (!items.length) { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center">No GIFs found</div>'; return; }
+      grid.innerHTML = items.map(g => {
+        const preview = g.images?.fixed_height_small?.url || g.images?.downsized_small?.mp4 || g.images?.preview_gif?.url || '';
+        const full    = g.images?.fixed_height?.url || g.images?.downsized?.url || g.images?.original?.url || preview;
+        if (!preview) return '';
+        return `<img src="${preview}" loading="lazy" onclick="pickGif('${id}','${encodeURIComponent(full)}')" style="cursor:pointer;border-radius:6px;width:100%;aspect-ratio:4/3;object-fit:cover">`;
+      }).filter(Boolean).join('');
+    } catch(err) {
+      grid.innerHTML = `<div style="padding:12px;text-align:center;font-size:12px;color:var(--dm);line-height:1.8">
+        <div style="margin-bottom:10px;color:var(--tx)">Pick a GIF from:</div>
+        <a href="https://giphy.com/search/${encodeURIComponent(q||'kpop')}" target="_blank" style="display:block;padding:9px;background:var(--pk);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;margin-bottom:6px">🎞 Open Giphy ↗</a>
+        <a href="https://tenor.com/search/${encodeURIComponent(q||'kpop')}-gif" target="_blank" style="display:block;padding:9px;background:var(--sf2);color:var(--tx);border-radius:10px;text-decoration:none;font-weight:700">🎞 Open Tenor ↗</a>
+        <div style="margin-top:8px;font-size:10px;color:var(--mt)">Copy the GIF link and paste into the chat</div>
       </div>`;
     }
-  }, 500);
+  }, 400);
+}
+
+function pickGif(id, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  sendGif(id, url);
 }
 async function sendGif(id, url) {
   $(id+'-gif')?.classList.remove('on');
@@ -2257,7 +2274,7 @@ async function openMem(u) {
   let frBtn = '';
   if (myFriends[u]) {
     // Already friends — show Message button
-    frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}');closeM('m-mem')">💬 Message</button>`;
+    frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}')">💬 Message</button>`;
   } else if (incomingToMe[u]) {
     // They sent ME a request — I can accept
     frBtn = `<button class="friend-req-btn fr-accept" onclick="acceptFriend('${u}')">💖 Accept Request</button>`;
@@ -2340,8 +2357,10 @@ function memFolderHTML(t, viewingUser) {
   </div>`;
 }
 
-// Open trade folder while keeping member profile in the stack
+// Open trade folder stacked on top of member profile
 function openFolderFromMem(tradeId) {
+  // openFolder calls openM('m-fold') which stacks on top of m-mem
+  // Back button will close m-fold and return to m-mem
   openFolder(tradeId);
 }
 
@@ -2403,12 +2422,12 @@ function openCommunityCard(owner, cardId) {
     <div style="font-size:11px;color:var(--mt);margin-bottom:12px">Listed by <b style="color:var(--tx)">@${esc(owner)}</b></div>
     <div style="display:flex;flex-direction:column;gap:8px">
       ${isFriend
-        ? `<button class="btn btn-p" style="width:100%" onclick="closeM('m-cdet');openDMWith('${esc(owner)}')">💬 Message @${esc(owner)}</button>`
-        : `<button class="btn btn-o" style="width:100%" onclick="closeM('m-cdet');openMem('${esc(owner)}')">👤 View @${esc(owner)}'s Profile</button>`
+        ? `<button class="btn btn-p" style="width:100%" onclick="openDMWith('${esc(owner)}')">💬 Message @${esc(owner)}</button>`
+        : `<button class="btn btn-o" style="width:100%" onclick="openMem('${esc(owner)}')">👤 View @${esc(owner)}'s Profile</button>`
       }
       ${linkedTrade
-        ? `<button class="btn btn-p" style="width:100%" onclick="closeM('m-cdet');openFolder('${linkedTrade.id}')">🔄 Open Trade Thread</button>`
-        : `<button class="btn btn-o" style="width:100%" onclick="closeM('m-cdet');sendCardInterest('${esc(owner)}','${esc(cardId)}')">♡ Express Interest</button>`
+        ? `<button class="btn btn-p" style="width:100%" onclick="openFolder('${linkedTrade.id}')">🔄 Open Trade Thread</button>`
+        : `<button class="btn btn-o" style="width:100%" onclick="sendCardInterest('${esc(owner)}','${esc(cardId)}')">♡ Express Interest</button>`
       }
     </div>`;
   openM('m-cdet');
