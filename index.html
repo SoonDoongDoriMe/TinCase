@@ -2289,7 +2289,7 @@ async function openMem(u) {
   let frBtn = '';
   if (myFriends[u]) {
     // Already friends — show Message button
-    frBtn = `<button class="friend-req-btn fr-friends" data-action="opendm" data-user="${u}">💬 Message</button>`;
+    frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}')">💬 Message</button>`;
   } else if (incomingToMe[u]) {
     // They sent ME a request — I can accept
     frBtn = `<button class="friend-req-btn fr-accept" onclick="acceptFriend('${u}')">💖 Accept Request</button>`;
@@ -2312,6 +2312,7 @@ async function openMem(u) {
   // All their open trade offers (for browsing)
   const theirOffers = trades.filter(t => !sharedTrades.find(s=>s.id===t.id));
 
+  window._memTrades = []; // reset trade lookup table for this profile
   $('mem-body').innerHTML = `
     <div style="background:linear-gradient(135deg,#1a0a2e,#2a0a1e);height:110px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0">
       ${d.profile?.bgPhoto?`<img src="${d.profile.bgPhoto}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5">`:''}
@@ -2374,14 +2375,18 @@ function memFolderHTML(t, viewingUser) {
   const thumb = offPhoto
     ? `<img src="${offPhoto}" style="width:40px;height:60px;object-fit:cover;border-radius:7px;flex-shrink:0;border:1.5px solid var(--bdp)">`
     : `<div style="width:40px;height:60px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🃏</div>`;
-  return `<div class="fcard" data-action="openfolder" data-id="${t.id}" style="cursor:pointer">
+  // Use a numeric index for safe onclick
+  const _tidx = (window._memTrades = window._memTrades||[]).length;
+  window._memTrades.push(t.id);
+  return `<div class="fcard" onclick="openMemTrade(${_tidx})" style="cursor:pointer">
     <div class="fcard-h">
       <div class="fav">${avH}</div>
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:13px">${esc(t.posterDisplayName||t.posterUsername)} <span style="font-size:10px;color:var(--mt);font-weight:400">@${esc(t.posterUsername)}</span></div>
         <div style="font-size:10px;color:var(--mt);margin-top:1px">Wants: <b style="color:var(--tx)">${esc(t.wantMember)}</b> · ${esc(t.wantArtist)}</div>
       </div>
-      ${thumb}${stag}
+      ${thumb}
+      <button style="background:var(--pk);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">Open</button>
     </div>
     <div class="fcard-msg">${esc(prev)}</div>
   </div>`;
@@ -2389,9 +2394,12 @@ function memFolderHTML(t, viewingUser) {
 
 // Open trade folder stacked on top of member profile
 function openFolderFromMem(tradeId) {
-  // openFolder calls openM('m-fold') which stacks on top of m-mem
-  // Back button will close m-fold and return to m-mem
   openFolder(tradeId);
+}
+function openMemTrade(idx) {
+  var id = window._memTrades && window._memTrades[idx];
+  if (id) openFolder(id);
+  else toast('Loading… please try again');
 }
 
 // openFolder: emoji/gif toolbar already in HTML
