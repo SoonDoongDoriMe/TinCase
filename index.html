@@ -574,10 +574,18 @@ video.msg-media{max-width:220px;}
 </div>
 
 <div class="ovl" id="m-srch">
-  <div class="modal mfull">
-    <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-srch')">←</button><input class="inp" id="gs-q" placeholder="Search cards, artists, members, unit…" oninput="doSearch()" autocomplete="off" style="flex:1"></div>
-    <div style="display:flex;gap:6px;padding:8px 14px 0"><div class="chip on" onclick="sf('all',this)">All</div><div class="chip" onclick="sf('solo',this)">Solo</div><div class="chip" onclick="sf('unit',this)">Unit</div></div>
-    <div class="scrl" id="sr-res"></div>
+  <div class="modal mfull" style="display:flex;flex-direction:column">
+    <div class="mhdr">
+      <button class="btn btn-ic" onclick="closeM('m-srch')">←</button>
+      <input class="inp" id="gs-q" placeholder="Artist, member, album, unit…" oninput="doSearch()" autocomplete="off" style="flex:1">
+    </div>
+    <div class="chips" id="srch-chips" style="padding:8px 13px 0;margin-bottom:0">
+      <div class="chip on" onclick="sf('mine',this)">My Cards</div>
+      <div class="chip" onclick="sf('trade',this)">For Trade</div>
+      <div class="chip" onclick="sf('iso',this)">ISO</div>
+      <div class="chip" onclick="sf('community',this)">Everyone</div>
+    </div>
+    <div class="scrl" id="sr-res" style="padding-top:10px"></div>
   </div>
 </div>
 
@@ -1057,7 +1065,13 @@ async function delCard() {
   await saveMyCards(cards);
   toast('Card removed.');
 }
-function editFromDet() { const id=ST.editId; closeM('m-det'); setTimeout(()=>openCard(id),200); }
+function editFromDet() {
+  const id=ST.editId;
+  // Close detail without triggering back-button handler
+  ST._skipPopstate = true;
+  $('m-det').classList.remove('on');
+  setTimeout(()=>{ openCard(id); ST._skipPopstate = false; }, 200);
+}
 
 /* ════════════════════════════════════════════════════════
    CARD DETAIL
@@ -1283,15 +1297,123 @@ async function sendInterest(id) {
 // openMem: see async version below
 
 /* SEARCH */
-function openSearch(){openM('m-srch');setTimeout(()=>$('gs-q').focus(),100);}
-function sf(f,el){ST.sf=f;document.querySelectorAll('#m-srch .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');doSearch();}
+function openSearch(){ST.sf='mine';openM('m-srch');setTimeout(()=>$('gs-q').focus(),100);}
+
+function sf(f,el){
+  ST.sf=f;
+  document.querySelectorAll('#srch-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  doSearch();
+}
+
+function cardMatchesQ(c, q) {
+  return [c.artist,c.member,c.album,c.type,c.notes,c.unitName,c.unitM1,c.unitM2,c.unitM3]
+    .some(s=>(s||'').toLowerCase().includes(q));
+}
+
+function communityCardHTML(c, ownerUsername) {
+  const owner = ST.users[ownerUsername] || {};
+  const nm = cNm(c), sb = cSb(c);
+  const img = c.photos?.[0] ? `<img src="${c.photos[0]}" loading="lazy">` : `<span style="font-size:28px;color:var(--mt)">🃏</span>`;
+  const isISO = c.wishlist;
+  const isTrade = c.forTrade;
+  return `<div class="pcard" style="opacity:1">
+    <div class="pc-img">${img}
+      ${isTrade?'<span class="bdg b-tr">TRADE</span>':''}
+      ${isISO?'<span class="bdg b-wi">★ ISO</span>':''}
+      ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
+    </div>
+    <div class="pc-inf">
+      <div class="pc-art">${esc(c.artist)}</div>
+      <div class="pc-nm">${esc(nm)}</div>
+      ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
+      <div style="font-size:9px;color:var(--mt);margin-top:2px">@${esc(ownerUsername)}</div>
+    </div>
+  </div>`;
+}
+
 function doSearch(){
-  const q=$('gs-q').value.trim().toLowerCase(); const el=$('sr-res');
-  if(!q){el.innerHTML=`<div class="empty"><div class="ei">🔍</div><h3>Search your vault</h3><p>Find by artist, member, album, unit, or notes</p></div>`;return;}
-  let res=myCards().filter(c=>[c.artist,c.member,c.album,c.type,c.notes,c.unitName,c.unitM1,c.unitM2,c.unitM3].some(s=>(s||'').toLowerCase().includes(q)));
-  if(ST.sf==='solo')res=res.filter(c=>c.category!=='unit');
-  else if(ST.sf==='unit')res=res.filter(c=>c.category==='unit');
-  el.innerHTML=res.length?`<div style="font-size:12px;color:var(--mt);margin-bottom:10px">${res.length} result${res.length!==1?'s':''}</div><div class="grid">${res.map(c=>cardHTML(c)).join('')}</div>`:`<div class="empty"><div class="ei">🔍</div><h3>No results</h3><p>No cards match "${esc(q)}"</p></div>`;
+  const q = $('gs-q').value.trim().toLowerCase();
+  const el = $('sr-res');
+  const mode = ST.sf || 'mine';
+
+  if (!q) {
+    const hints = {
+      mine:      'Search your own cards by artist, member, album, unit, or notes',
+      trade:     'Search all cards listed For Trade across the community',
+      iso:       'Search all ISO (In Search Of) requests across the community',
+      community: 'Search all community cards'
+    };
+    el.innerHTML = `<div class="empty"><div class="ei">🔍</div><h3>Search ${mode==='mine'?'Your Vault':'Community'}</h3><p>${hints[mode]}</p></div>`;
+    return;
+  }
+
+  el.innerHTML = '<div style="color:var(--mt);font-size:12px;padding:12px">Searching…</div>';
+
+  let results = [];
+
+  if (mode === 'mine') {
+    // Search only my cards
+    results = myCards()
+      .filter(c => cardMatchesQ(c, q))
+      .map(c => ({ card:c, owner:ST.user.username, mine:true }));
+
+  } else if (mode === 'trade') {
+    // Search all community cards tagged For Trade
+    Object.entries(ST.users).forEach(([username, userData]) => {
+      (userData.cards || [])
+        .filter(c => c.forTrade && cardMatchesQ(c, q))
+        .forEach(c => results.push({ card:c, owner:username, mine:username===ST.user.username }));
+    });
+
+  } else if (mode === 'iso') {
+    // Search all community ISO cards
+    Object.entries(ST.users).forEach(([username, userData]) => {
+      (userData.cards || [])
+        .filter(c => c.wishlist && cardMatchesQ(c, q))
+        .forEach(c => results.push({ card:c, owner:username, mine:username===ST.user.username }));
+    });
+
+  } else if (mode === 'community') {
+    // Search everyone's cards
+    Object.entries(ST.users).forEach(([username, userData]) => {
+      (userData.cards || [])
+        .filter(c => cardMatchesQ(c, q))
+        .forEach(c => results.push({ card:c, owner:username, mine:username===ST.user.username }));
+    });
+  }
+
+  if (!results.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">🔍</div><h3>No results</h3><p>No cards match "<b>${esc(q)}</b>" in this category</p></div>`;
+    return;
+  }
+
+  // Group by artist for easier browsing
+  const byArtist = {};
+  results.forEach(r => {
+    const a = r.card.artist || '?';
+    if (!byArtist[a]) byArtist[a] = [];
+    byArtist[a].push(r);
+  });
+
+  const artists = Object.keys(byArtist).sort();
+  let html = `<div style="font-size:12px;color:var(--mt);margin-bottom:12px">${results.length} result${results.length!==1?'s':''} for "<b style="color:var(--tx)">${esc(q)}</b>"</div>`;
+
+  artists.forEach(artist => {
+    const group = byArtist[artist];
+    html += `<div class="st" style="margin-bottom:8px">${esc(artist)} <span style="font-size:11px;color:var(--mt);font-weight:400">(${group.length})</span></div>`;
+    html += `<div class="grid" style="margin-bottom:16px">`;
+    group.forEach(({card:c, owner, mine}) => {
+      if (mine) {
+        html += cardHTML(c); // own card — tappable to detail
+      } else {
+        html += communityCardHTML(c, owner);
+      }
+    });
+    html += `</div>`;
+  });
+
+  el.innerHTML = html;
 }
 
 /* PROFILE */
@@ -1337,6 +1459,7 @@ function handleBg(e){const f=e.target.files[0];if(!f)return;const r=new FileRead
 //  BACK BUTTON — stay in app
 // ══════════════════════════════════════════════════════
 window.addEventListener('popstate', function() {
+  if (ST._skipPopstate) return;
   const modal = document.querySelector('.ovl.on');
   if (modal) { modal.classList.remove('on'); history.pushState({tc:'app'},''); return; }
   if (!$('pn-vault')?.classList.contains('on')) {
