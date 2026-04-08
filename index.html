@@ -368,23 +368,28 @@ video.msg-media{max-width:220px;}
   <!-- TRADE -->
   <div id="pn-trade" class="pane">
     <div class="hdr">
-      <div><div class="hdr-kr">트레이드</div><div class="hdr-sub">Community</div></div>
+      <div><div class="hdr-kr">트레이드</div><div class="hdr-sub">Community Cards</div></div>
       <div class="hdr-r"><button class="btn btn-sm btn-p" onclick="openPropose(null)">+ Offer</button></div>
     </div>
-    <div class="scrl">
-      <input class="inp" id="trade-q" placeholder="Search trades or members…" oninput="renderTrade()" style="margin-bottom:12px">
-      <div class="chips" id="tc-chips">
-        <div class="chip on" onclick="tf('open',this)">Open</div>
-        <div class="chip" onclick="tf('mine',this)">Mine</div>
-        <div class="chip" onclick="tf('all',this)">All</div>
-        <div class="chip" onclick="tf('members',this)">Members</div>
-      </div>
-      <div id="trade-list"></div>
+    <!-- Search bar always visible at top -->
+    <div style="padding:10px 13px 0;flex-shrink:0">
+      <input class="inp" id="trade-q" placeholder="Search by artist, member, album…" oninput="renderTrade()" autocomplete="off">
+    </div>
+    <div class="chips" id="tc-chips" style="padding:8px 13px 0;margin-bottom:0">
+      <div class="chip on" onclick="tf('trade',this)">For Trade</div>
+      <div class="chip" onclick="tf('iso',this)">ISO</div>
+      <div class="chip" onclick="tf('offers',this)">My Offers</div>
+      <div class="chip" onclick="tf('members',this)">Members</div>
+    </div>
+    <div class="scrl" style="padding-top:10px">
+      <div id="trade-cards-grid"></div>
       <div id="member-list" style="display:none"></div>
-      <div class="empty hidden" id="trade-empty"><div class="ei">🔄</div><h3>No trades yet</h3><p>Post an offer to start trading!</p></div>
+      <div class="empty hidden" id="trade-empty"><div class="ei">🔄</div><h3>No cards yet</h3><p>Add cards to your vault and mark them For Trade!</p></div>
+      <!-- My Offers section (old folder style) -->
+      <div id="my-offers-list" style="display:none"></div>
       <div id="arch-sec" style="display:none;border-top:1px solid var(--bd);margin-top:8px">
         <div style="display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer" onclick="toggleArch()">
-          <span style="font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;color:var(--dm)">Completed Trades</span>
+          <span style="font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;color:var(--dm)">Completed Offers</span>
           <span id="arch-cnt" style="font-size:10px;color:var(--mt);background:var(--sf);border-radius:99px;padding:2px 7px;border:1px solid var(--bd)">0</span>
           <span id="arch-arr" style="margin-left:auto;color:var(--mt);transition:transform .2s">▾</span>
         </div>
@@ -424,33 +429,13 @@ video.msg-media{max-width:220px;}
 
   <!-- ── CHAT TAB ── -->
   <div id="pn-chat" class="pane">
-    <div class="hdr"><div><div class="hdr-kr">채팅</div><div class="hdr-sub">Chat</div></div></div>
+    <div class="hdr"><div><div class="hdr-kr">채팅</div><div class="hdr-sub">Messages</div></div></div>
     <div class="chips" id="chat-chips" style="padding:10px 13px 0;margin-bottom:0">
-      <div class="chip on" onclick="chatTab('group',this)">🌸 Group Chat</div>
-      <div class="chip" onclick="chatTab('dms',this)">💬 DMs</div>
+      <div class="chip on" onclick="chatTab('dms',this)">💬 DMs</div>
       <div class="chip" onclick="chatTab('friends',this)">👥 Friends</div>
     </div>
-    <!-- GROUP CHAT -->
-    <div id="chat-group" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
-      <div class="msg-area" id="gc-msgs" style="flex:1;min-height:0"></div>
-      <div class="chat-toolbar">
-        <button class="chat-tb-btn" onclick="toggleEmoji('gc')">😊</button>
-        <button class="chat-tb-btn" onclick="toggleGif('gc')">GIF</button>
-        <button class="chat-tb-btn" onclick="$('gc-media-in').click()">📷</button>
-      </div>
-      <div class="emoji-tray" id="gc-emoji"></div>
-      <div class="gif-panel" id="gc-gif">
-        <input class="inp gif-search-inp" id="gc-gif-q" placeholder="Search GIFs… (e.g. kpop dance)" oninput="searchGif('gc')">
-        <div class="gif-grid" id="gc-gif-grid"></div>
-      </div>
-      <div class="msg-bar">
-        <input class="inp" id="gc-msg" placeholder="Message everyone…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGroupMsg()}">
-        <button class="btn btn-p btn-sm" onclick="sendGroupMsg()">Send</button>
-      </div>
-      <input type="file" id="gc-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('gc',event)">
-    </div>
     <!-- DM LIST -->
-    <div id="chat-dms" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
+    <div id="chat-dms" style="flex:1;overflow-y:auto;padding:13px"></div>
     <!-- FRIENDS LIST -->
     <div id="chat-friends" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
   </div>
@@ -879,10 +864,7 @@ async function pollData() {
       if (t) renderFolderMsgs(t);
     }
   } catch {}
-  // Also refresh group chat if chat tab open
-  if ($('pn-chat')?.classList.contains('on') && ST_chatTab === 'group') {
-    loadGroupChat();
-  }
+
 }
 
 async function saveMyCards(cards) {
@@ -921,11 +903,11 @@ function goTab(tab, btn) {
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   $('pn-'+tab).classList.add('on'); btn.classList.add('on');
   document.querySelector('.fab').style.display = tab==='vault' ? 'flex' : 'none';
-  if(tab==='chat'){setTimeout(()=>{chatTab('group',$('chat-chips').querySelector('.chip.on')||$('chat-chips').querySelector('.chip'));},80);}
+  if(tab==='chat'){ST_chatTab='dms';setTimeout(()=>{const fc=$('chat-chips')?.querySelector('.chip'); if(fc){fc.classList.add('on');} loadDMList();},80);}
   if (tab==='coll')  renderColl();
-  if (tab==='trade') renderTrade();
+  if (tab==='trade') { ST.tf='trade'; renderTrade(); }
   if (tab==='prof')  { renderProf(); renderProfRecent(); }
-  if (tab==='chat')  { setTimeout(function(){ var fc=document.querySelector('#chat-chips .chip.on')||document.querySelector('#chat-chips .chip'); if(fc)fc.click(); else loadGroupChat(); },80); }
+  if (tab==='chat')  { ST_chatTab='dms'; setTimeout(function(){ var fc=document.querySelector('#chat-chips .chip'); if(fc){document.querySelectorAll('#chat-chips .chip').forEach(c=>c.classList.remove('on'));fc.classList.add('on');} loadDMList(); },80); }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1140,27 +1122,97 @@ function renderColl() {
    TRADES
 ════════════════════════════════════════════════════════ */
 function renderTrade() {
-  const q=($('trade-q')?.value||'').toLowerCase();
-  const isMem=ST.tf==='members';
-  $('trade-list').style.display=isMem?'none':''; $('member-list').style.display=isMem?'':'none';
-  if (isMem) { renderMembers(q); return; }
-  let open=tradeList().filter(t=>t.status==='open');
-  let done=tradeList().filter(t=>t.status!=='open');
-  if (ST.tf==='mine') open=open.filter(t=>t.posterUsername===ST.user?.username);
-  if (q) {
-    const m=t=>[t.wantArtist,t.wantMember,t.wantAlbum,t.note,t.posterUsername,t.posterDisplayName].some(s=>(s||'').toLowerCase().includes(q));
-    open=open.filter(m); done=done.filter(m);
+  const q = ($('trade-q')?.value||'').toLowerCase().trim();
+  const mode = ST.tf || 'trade';
+  const grid = $('trade-cards-grid');
+  const memList = $('member-list');
+  const offersList = $('my-offers-list');
+  const archSec = $('arch-sec');
+
+  // Show/hide sections based on mode
+  grid.style.display      = (mode==='trade'||mode==='iso') ? 'block' : 'none';
+  memList.style.display   = mode==='members' ? 'block' : 'none';
+  offersList.style.display= mode==='offers'  ? 'block' : 'none';
+  archSec.style.display   = 'none';
+
+  if (mode === 'members') { renderMembers(q); return; }
+
+  if (mode === 'offers') {
+    // My posted trade offers — folder style
+    const myOpen = tradeList().filter(t=>t.posterUsername===ST.user?.username&&t.status==='open');
+    const myDone = tradeList().filter(t=>t.posterUsername===ST.user?.username&&t.status!=='open');
+    if (!myOpen.length && !myDone.length) {
+      offersList.innerHTML = '<div class="empty"><div class="ei">🔄</div><h3>No offers yet</h3><p>Tap "+ Offer" to post a trade!</p></div>';
+    } else {
+      offersList.innerHTML = myOpen.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t)).join('');
+      if (myDone.length) {
+        archSec.style.display = '';
+        $('arch-cnt').textContent = myDone.length;
+        $('arch-body').innerHTML = myDone.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t,true)).join('');
+      }
+    }
+    return;
   }
-  const tl=$('trade-list'),as=$('arch-sec');
-  if (!open.length&&!done.length){tl.innerHTML='';hidden('trade-empty',false);as.style.display='none';return;}
-  hidden('trade-empty',true);
-  tl.innerHTML=open.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t)).join('');
-  if(done.length){as.style.display='';$('arch-cnt').textContent=done.length;$('arch-body').innerHTML=done.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t,true)).join('');}
-  else as.style.display='none';
+
+  // TRADE or ISO — show all community cards as a card grid
+  const isISO = mode === 'iso';
+  let results = [];
+  Object.entries(ST.users).forEach(([username, userData]) => {
+    (userData.cards || [])
+      .filter(c => isISO ? c.wishlist : c.forTrade)
+      .filter(c => !q || [c.artist,c.member,c.album,c.unitName,c.unitM1,c.unitM2,c.unitM3,c.notes]
+        .some(s=>(s||'').toLowerCase().includes(q)))
+      .forEach(c => results.push({card:c, owner:username}));
+  });
+
+  hidden('trade-empty', results.length > 0);
+  if (!results.length) { grid.innerHTML=''; return; }
+
+  // Group by artist
+  const byArtist = {};
+  results.forEach(r => {
+    const a = r.card.artist || 'Unknown';
+    if (!byArtist[a]) byArtist[a] = [];
+    byArtist[a].push(r);
+  });
+
+  let html = '';
+  Object.keys(byArtist).sort().forEach(artist => {
+    const group = byArtist[artist];
+    html += `<div class="st" style="margin-bottom:8px">${esc(artist)} <span style="font-size:11px;font-weight:400;color:var(--mt)">(${group.length})</span></div>`;
+    html += `<div class="grid" style="margin-bottom:18px">`;
+    group.forEach(({card:c, owner}) => {
+      const isMe = owner === ST.user?.username;
+      const nm = cNm(c), sb = cSb(c);
+      const img = c.photos?.[0] ? `<img src="${c.photos[0]}" loading="lazy">` : `<span style="font-size:28px;color:var(--mt)">🃏</span>`;
+      html += `<div class="pcard" onclick="${isMe ? `openDet('${c.id}')` : `openMem('${esc(owner)}')`}">
+        <div class="pc-img">${img}
+          ${isISO?'<span class="bdg b-wi">★ ISO</span>':'<span class="bdg b-tr">TRADE</span>'}
+          ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
+        </div>
+        <div class="pc-inf">
+          <div class="pc-art">${esc(c.artist)}</div>
+          <div class="pc-nm">${esc(nm)}</div>
+          ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
+          <div style="font-size:9px;color:${isMe?'var(--pk)':'var(--mt)'};margin-top:2px">${isMe?'You':'@'+esc(owner)}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  grid.innerHTML = html;
 }
 function tf(f,el){ST.tf=f;$('tc-chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTrade();}
 function toggleArch(){ST.archOpen=!ST.archOpen;$('arch-body').style.display=ST.archOpen?'':'none';$('arch-arr').style.transform=ST.archOpen?'rotate(180deg)':'';}
-function updatePip(){const n=tradeList().filter(t=>t.status==='open').length;const p=$('trade-pip');n>0?(p.textContent=n,p.classList.remove('hidden')):p.classList.add('hidden');}
+function updatePip(){
+  // Count all community For Trade cards (excluding own)
+  let n=0;
+  Object.entries(ST.users||{}).forEach(([u,d])=>{
+    if(u!==ST.user?.username) n+=(d.cards||[]).filter(c=>c.forTrade).length;
+  });
+  const p=$('trade-pip');
+  if(n>0){p.textContent=n;p.classList.remove('hidden');}else p.classList.add('hidden');
+}
 
 function folderHTML(t, archived=false) {
   const isMe=t.posterUsername===ST.user?.username;
@@ -1492,27 +1544,12 @@ function chatTab(tab, el) {
   $('chat-group').style.display   = tab==='group'   ? 'flex' : 'none';
   $('chat-dms').style.display     = tab==='dms'     ? 'block' : 'none';
   $('chat-friends').style.display = tab==='friends' ? 'block' : 'none';
-  if (tab==='group')   loadGroupChat();
   if (tab==='dms')     loadDMList();
   if (tab==='friends') loadFriendsList();
 }
 
 // ── GROUP CHAT ──
-async function loadGroupChat() {
-  const msgs = await fbGet('/groupChat/messages');
-  renderChatMsgs('gc-msgs', msgs, false);
-}
-
-async function sendGroupMsg() {
-  const inp = $('gc-msg'); const text = inp.value.trim();
-  if (!text) return;
-  inp.value = '';
-  const msgId = uid();
-  const msg = { username: ST.user.username, displayName: ST.user.displayName,
-    avatar: myProf().avatar||null, text, at: Date.now(), type:'text' };
-  await fbSet('/groupChat/messages/'+msgId, msg);
-  loadGroupChat();
-}
+// Group chat removed
 
 // ── FRIEND REQUESTS ──
 async function sendFriendReq(toUser) {
@@ -1664,7 +1701,7 @@ function toggleEmoji(id) {
   const gif = $(id+'-gif'); if (gif) gif.classList.add('hidden');
 }
 function insertEmoji(id, emoji) {
-  const inp = $(id===('gc')?'gc-msg':id===('dm')?'dm-msg':'fd-msg');
+  const inp = $(id==='dm'?'dm-msg':'fd-msg');
   if (!inp) return;
   const pos = inp.selectionStart || inp.value.length;
   inp.value = inp.value.slice(0,pos) + emoji + inp.value.slice(pos);
@@ -1702,9 +1739,7 @@ async function sendGif(id, url) {
   $(id+'-gif')?.classList.add('hidden');
   const msg = { username: ST.user.username, displayName: ST.user.displayName,
     avatar: myProf().avatar||null, url, at: Date.now(), type:'gif' };
-  if (id === 'gc') {
-    await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
-  } else if (id === 'dm' && ST_dmPartner) {
+  if (id === 'dm' && ST_dmPartner) {
     const convId = dmConvId(ST.user.username, ST_dmPartner);
     await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
     const msgs = await fbGet('/dms/'+convId+'/messages');
@@ -1733,9 +1768,7 @@ async function sendMediaMsg(id, e) {
     const url = ev.target.result;
     const msg = { username: ST.user.username, displayName: ST.user.displayName,
       avatar: myProf().avatar||null, url, at: Date.now(), type: isVideo?'video':'image' };
-    if (id === 'gc') {
-      await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
-    } else if (id === 'dm' && ST_dmPartner) {
+    if (id === 'dm' && ST_dmPartner) {
       const convId = dmConvId(ST.user.username, ST_dmPartner);
       await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
       const msgs = await fbGet('/dms/'+convId+'/messages');
@@ -1744,7 +1777,6 @@ async function sendMediaMsg(id, e) {
       await fbSet('/trades/'+ST.viewTradeId+'/messages/'+uid(), msg);
       const t = (ST.trades||{})[ST.viewTradeId];
       if (t) { if(!t.messages)t.messages={}; renderFolderMsgs(t); }
-      loadGroupChat();
     }
     toast('Media sent! 📸');
   };
