@@ -362,7 +362,17 @@ video.msg-media{max-width:220px;}
   <!-- COLLECTION -->
   <div id="pn-coll" class="pane">
     <div class="hdr"><div><div class="hdr-kr">컬렉션</div><div class="hdr-sub">My Collection</div></div></div>
-    <div class="scrl" id="coll-body"></div>
+    <div style="padding:10px 13px 0;flex-shrink:0">
+      <input class="inp" id="coll-q" placeholder="Filter by artist, member, album, unit…" oninput="renderColl()" autocomplete="off">
+    </div>
+    <div class="chips" id="coll-chips" style="padding:8px 13px 0;margin-bottom:0">
+      <div class="chip on" onclick="cf('all',this)">All</div>
+      <div class="chip" onclick="cf('keep',this)">Keeping</div>
+      <div class="chip" onclick="cf('trade',this)">For Trade</div>
+      <div class="chip" onclick="cf('iso',this)">ISO</div>
+      <div class="chip" onclick="cf('dupe',this)">Dupes</div>
+    </div>
+    <div class="scrl" id="coll-body" style="padding-top:10px"></div>
   </div>
 
   <!-- TRADE -->
@@ -1096,26 +1106,81 @@ function setGal(i){ST.galIdx=i;const m=$('gal-main');const c=myCards().find(x=>x
 /* ════════════════════════════════════════════════════════
    COLLECTION
 ════════════════════════════════════════════════════════ */
+function cf(f,el){ST.cf=f;document.querySelectorAll('#coll-chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderColl();}
+
+function collCardHTML(c) {
+  // Check if this card is currently in active trade talks
+  const inActiveTrade = tradeList().some(t=>t.offeringCardId===c.id&&t.status==='open'&&Object.values(t.messages||{}).length>0&&t.posterUsername===ST.user?.username);
+  const isTrading = tradeList().some(t=>t.offeringCardId===c.id&&t.status==='open'&&t.posterUsername===ST.user?.username);
+  const nm=cNm(c), sb=cSb(c);
+  const img=c.photos?.[0]?`<img src="${c.photos[0]}" loading="lazy">`:`<span style="font-size:28px;color:var(--mt)">🃏</span>`;
+  // Grey out + fade if in active trade talks
+  const fadeStyle = inActiveTrade ? 'opacity:.45;filter:grayscale(.6)' : '';
+  return `<div class="pcard" onclick="openDet('${c.id}')" style="${fadeStyle}">
+    <div class="pc-img">${img}
+      ${isTrading&&inActiveTrade?'<span class="bdg b-ing">IN TALKS</span>':isTrading?'<span class="bdg b-tr">TRADE</span>':''}
+      ${c.wishlist?'<span class="bdg b-wi">★ ISO</span>':''}
+      ${c.keep?'<span class="bdg b-kp">♡ KEEP</span>':''}
+      ${c.dupe?'<span class="bdg" style="bottom:6px;right:6px;background:#ffd16699;color:#fff">×2</span>':''}
+      ${c.category==='unit'&&!c.keep?'<span class="bdg b-un">UNIT</span>':''}
+    </div>
+    <div class="pc-inf">
+      <div class="pc-art">${esc(c.artist)}</div>
+      <div class="pc-nm">${esc(nm)}</div>
+      ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
+    </div>
+  </div>`;
+}
+
 function renderColl() {
-  const cards=myCards(), keeps=cards.filter(c=>c.keep);
-  const byA={}; keeps.forEach(c=>{byA[c.artist]=(byA[c.artist]||0)+1;});
-  const topA=Object.entries(byA).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const doneT=tradeList().filter(t=>t.posterUsername===ST.user?.username&&t.status==='completed').length;
-  $('coll-body').innerHTML=`
-    <div style="padding:13px 13px 0">
-      <div class="cbox">
-        <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
-          <div><div class="cn">${keeps.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Keeping</div></div>
-          <div style="flex:1">
-            ${[['Total in Vault',cards.length],['For Trade',cards.filter(c=>c.forTrade).length],['ISO',cards.filter(c=>c.wishlist).length],['Trades Done',doneT]].map(([l,v])=>`<div class="crow"><span style="color:var(--dm)">${l}</span><span style="font-weight:700">${v}</span></div>`).join('')}
-          </div>
+  const mode = ST.cf || 'all';
+  const q = ($('coll-q')?.value||'').toLowerCase().trim();
+  let cards = myCards();
+
+  // Apply search filter
+  if (q) {
+    cards = cards.filter(c=>[c.artist,c.member,c.album,c.unitName,c.unitM1,c.unitM2,c.unitM3,c.notes,c.type]
+      .some(s=>(s||'').toLowerCase().includes(q)));
+  }
+
+  // Apply category filter
+  if (mode==='keep')  cards = cards.filter(c=>c.keep);
+  if (mode==='trade') cards = cards.filter(c=>c.forTrade);
+  if (mode==='iso')   cards = cards.filter(c=>c.wishlist);
+  if (mode==='dupe')  cards = cards.filter(c=>c.dupe);
+
+  const allCards = myCards(); // unfiltered for stats
+  const doneT = tradeList().filter(t=>t.posterUsername===ST.user?.username&&t.status==='completed').length;
+
+  // Stats bar (always shows totals)
+  const statsHTML = `<div style="padding:0 0 12px">
+    <div class="cbox">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div><div class="cn">${allCards.filter(c=>c.keep).length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Keeping</div></div>
+        <div style="flex:1">
+          ${[['Total',allCards.length],['For Trade',allCards.filter(c=>c.forTrade).length],['ISO',allCards.filter(c=>c.wishlist).length],['Trades Done',doneT]].map(([l,v])=>`<div class="crow"><span style="color:var(--dm)">${l}</span><span style="font-weight:700">${v}</span></div>`).join('')}
         </div>
       </div>
     </div>
-    ${keeps.length?`<div class="st" style="padding:0 13px;margin-bottom:8px">Cards I'm Keeping</div><div class="grid" style="padding:0 13px">${keeps.map(c=>cardHTML(c)).join('')}</div>`:''}
-    ${topA.length?`<div class="st" style="padding:13px 13px 8px">By Artist</div><div class="cbox" style="margin:0 13px 13px">${topA.map(([a,n])=>`<div class="crow"><span style="font-size:12px;color:var(--tx)">${esc(a)}</span><div style="display:flex;align-items:center;gap:7px"><div class="prog"><div class="prog-f" style="width:${Math.round(n/keeps.length*100)}%"></div></div><span style="font-weight:700;min-width:16px;text-align:right">${n}</span></div></div>`).join('')}</div>`:''}
-    ${!keeps.length?`<div class="empty"><div class="ei">📚</div><h3>No keeps yet</h3><p>Toggle "Keeping" when adding a card!</p></div>`:''}
-  `;
+  </div>`;
+
+  if (!cards.length) {
+    $('coll-body').innerHTML = statsHTML + `<div class="empty"><div class="ei">📚</div><h3>${q?'No results':'No cards'}</h3><p>${q?`No cards match "${esc(q)}"`:mode==='keep'?'Toggle "Keeping" on cards you want to keep!':mode==='trade'?'Mark cards "For Trade" to see them here!':mode==='iso'?'Mark cards as ISO to see them here!':'No duplicate cards yet!'}</p></div>`;
+    return;
+  }
+
+  // Group by artist
+  const byArtist = {};
+  cards.forEach(c=>{const a=c.artist||'?'; if(!byArtist[a])byArtist[a]=[]; byArtist[a].push(c);});
+  const artists = Object.keys(byArtist).sort();
+
+  let gridHTML = artists.map(artist=>{
+    const group = byArtist[artist];
+    return `<div class="st" style="margin-bottom:8px">${esc(artist)} <span style="font-size:11px;font-weight:400;color:var(--mt)">(${group.length})</span></div>
+    <div class="grid" style="margin-bottom:18px">${group.map(c=>collCardHTML(c)).join('')}</div>`;
+  }).join('');
+
+  $('coll-body').innerHTML = statsHTML + gridHTML;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1217,16 +1282,28 @@ function updatePip(){
 function folderHTML(t, archived=false) {
   const isMe=t.posterUsername===ST.user?.username;
   const msgs=Object.values(t.messages||{}); const lm=msgs[msgs.length-1];
-  const prev=lm?`${lm.username===ST.user?.username?'You':lm.username}: ${lm.text}`:'No messages yet';
+  const prev=lm?(lm.type&&lm.type!=='text'?'📸 Photo/GIF':`${lm.username===ST.user?.username?'You':lm.username}: ${lm.text}`):'No messages yet';
   const stag=t.status==='completed'?'<span class="tag tg-m">✓ Done</span>':'<span class="tag tg-p">🔄 Open</span>';
   const avH=t.posterAvatar?`<img src="${t.posterAvatar}">`:(t.posterDisplayName||'?')[0].toUpperCase();
+  // Get offering card photo
+  var offPhoto = t.offeringCardPhoto || null;
+  if (!offPhoto) {
+    var ownerCards2 = (ST.users[t.posterUsername]||{}).cards||[];
+    var lc2 = ownerCards2.find(function(c){return c.id===t.offeringCardId;});
+    if(lc2) offPhoto = lc2.photos?.[0]||null;
+  }
+  const cardThumb = offPhoto
+    ? `<img src="${offPhoto}" style="width:44px;height:66px;object-fit:cover;border-radius:7px;flex-shrink:0;border:1.5px solid var(--bdp)">`
+    : `<div style="width:44px;height:66px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🃏</div>`;
   return `<div class="fcard" onclick="openFolder('${t.id}')" style="${archived?'opacity:.55':''}">
     <div class="fcard-h">
       <div class="fav">${avH}</div>
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:13px">${esc(isMe?'My Offer':t.posterDisplayName)} <span style="color:var(--mt);font-size:10px;font-weight:400">@${esc(t.posterUsername)}</span></div>
-        <div style="font-size:10px;color:var(--mt)">${fmtD(t.createdAt)} · Wants: ${esc(t.wantMember)} · ${esc(t.wantArtist)}</div>
-      </div>${stag}
+        <div style="font-size:10px;color:var(--mt);margin-top:1px">${fmtD(t.createdAt)} · Wants: <b style="color:var(--tx)">${esc(t.wantMember)}</b> · ${esc(t.wantArtist)}</div>
+      </div>
+      ${cardThumb}
+      ${stag}
     </div>
     <div class="fcard-msg">${esc(prev)}</div>
   </div>`;
@@ -1268,10 +1345,21 @@ async function postTrade() {
   if(!offId){toast('Pick a card to offer!');return;}
   const wa=$('w-art').value.trim(),wm=$('w-mem').value.trim();
   if(!wa||!wm){toast("Fill in what you're looking for!");return;}
+  // Grab the offering card details + first photo to embed in the trade
+  const offCard = myCards().find(c=>c.id===offId);
   const id=uid();
-  const t={id,offeringCardId:offId,posterUsername:ST.user.username,posterDisplayName:ST.user.displayName,
-    posterAvatar:myProf().avatar||null,wantArtist:wa,wantMember:wm,wantAlbum:$('w-alb').value.trim(),
-    note:$('t-note').value.trim(),status:'open',messages:{},createdAt:Date.now()};
+  const t={
+    id, offeringCardId:offId,
+    posterUsername:ST.user.username, posterDisplayName:ST.user.displayName,
+    posterAvatar:myProf().avatar||null,
+    // Embed card snapshot so it shows even if vault changes
+    offeringCardName: offCard ? cNm(offCard) : '',
+    offeringCardArtist: offCard ? (offCard.artist||'') : '',
+    offeringCardAlbum: offCard ? (offCard.album||'') : '',
+    offeringCardPhoto: offCard?.photos?.[0] || null,
+    wantArtist:wa, wantMember:wm, wantAlbum:$('w-alb').value.trim(),
+    note:$('t-note').value.trim(), status:'open', messages:{}, createdAt:Date.now()
+  };
   ST.trades[id]=t;
   closeM('m-prop');renderTrade();updatePip();
   await fbSet('/trades/'+id, t);
@@ -1288,13 +1376,35 @@ function openFolder(id) {
   $('fd-act').innerHTML=isMe&&t.status==='open'?`<button class="btn btn-sm btn-g" onclick="markDone('${id}')">Mark Done ✓</button>`
     :!isMe&&t.status==='open'?`<button class="btn btn-sm btn-o" onclick="sendInterest('${id}')">Interested ♡</button>`
     :`<span class="tag tg-m">✓ Done</span>`;
-  $('fd-body').innerHTML=`<div style="background:var(--sf);border-radius:var(--rs);padding:12px">
-    <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Offering</div>
-    <div style="font-size:13px;font-weight:700;margin-bottom:8px">Card from @${esc(t.posterUsername)}</div>
-    <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Looking for</div>
-    <div style="font-size:15px;font-weight:700">${esc(t.wantMember)}</div>
-    <div style="font-size:12px;color:var(--dm)">${esc(t.wantArtist)}${t.wantAlbum?' · '+esc(t.wantAlbum):''}</div>
-    ${t.note?`<div style="margin-top:8px;font-size:12px;color:var(--dm);font-style:italic">"${esc(t.note)}"</div>`:''}
+  // Try to get offering card photo — use embedded snapshot first, fall back to live card
+  var offPhoto = t.offeringCardPhoto || null;
+  if (!offPhoto) {
+    var ownerCards = (ST.users[t.posterUsername]||{}).cards || [];
+    var liveCard = ownerCards.find(function(c){return c.id===t.offeringCardId;});
+    if (liveCard) offPhoto = liveCard.photos?.[0] || null;
+  }
+  var offName = t.offeringCardName || (t.offeringCardArtist ? t.offeringCardArtist : 'Card');
+  var offArtist = t.offeringCardArtist || '';
+  var offAlbum = t.offeringCardAlbum || '';
+  var offThumb = offPhoto
+    ? `<img src="${offPhoto}" style="width:70px;height:105px;object-fit:cover;border-radius:9px;flex-shrink:0;border:1.5px solid var(--bdp)">`
+    : `<div style="width:70px;height:105px;border-radius:9px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🃏</div>`;
+
+  $('fd-body').innerHTML=`<div style="display:flex;gap:12px;padding:14px">
+    ${offThumb}
+    <div style="flex:1;min-width:0">
+      <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Offering</div>
+      <div style="font-size:14px;font-weight:700">${esc(offName)}</div>
+      ${offArtist?`<div style="font-size:11px;color:var(--pk);font-weight:600">${esc(offArtist)}</div>`:''}
+      ${offAlbum?`<div style="font-size:11px;color:var(--dm)">${esc(offAlbum)}</div>`:''}
+      <div style="font-size:10px;color:var(--mt);margin-top:2px">by @${esc(t.posterUsername)}</div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)">
+        <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Looking for</div>
+        <div style="font-size:14px;font-weight:700">${esc(t.wantMember)}</div>
+        <div style="font-size:11px;color:var(--dm)">${esc(t.wantArtist)}${t.wantAlbum?' · '+esc(t.wantAlbum):''}</div>
+      </div>
+      ${t.note?`<div style="margin-top:8px;font-size:11px;color:var(--dm);font-style:italic;padding-top:8px;border-top:1px solid var(--bd)">"${esc(t.note)}"</div>`:''}
+    </div>
   </div>`;
   renderFolderMsgs(t);
   openM('m-fold');
@@ -1307,7 +1417,18 @@ function renderFolderMsgs(t) {
   if(!msgs.length){el.innerHTML=`<div style="text-align:center;color:var(--mt);font-size:12px;padding:20px">No messages yet 💬</div>`;return;}
   el.innerHTML=msgs.map(m=>{
     const me=m.username===ST.user?.username;
-    return `<div class="mw ${me?'me':'them'}">${!me?`<div class="msnd">@${esc(m.username)}</div>`:''}<div class="bbl ${me?'me':'them'}">${esc(m.text)}</div><div class="mt-time">${fmtT(m.at)}</div></div>`;
+    let bubble='';
+    if(m.type==='image'){
+      bubble=`<img src="${m.url}" class="msg-media">`;
+    } else if(m.type==='video'){
+      bubble=`<video src="${m.url}" class="msg-media" controls playsinline></video>`;
+    } else if(m.type==='gif'){
+      bubble=`<img src="${m.url}" class="msg-gif">`;
+    } else {
+      bubble=`<div class="bbl ${me?'me':'them'}">${esc(m.text||'')}</div>`;
+    }
+    return `<div class="mw ${me?'me':'them'}">${!me?`<div class="msnd">@${esc(m.username)}</div>`:''
+    }${bubble}<div class="mt-time">${fmtT(m.at)}</div></div>`;
   }).join('');
   setTimeout(()=>el.scrollTop=el.scrollHeight,50);
 }
