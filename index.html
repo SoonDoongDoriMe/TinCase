@@ -851,6 +851,7 @@ function doLogout() {
 ════════════════════════════════════════════════════════ */
 function showApp() {
   showScr('scr-app');
+  history.pushState({tc:'app'}, '');
   renderVault(); renderColl(); renderTrade(); renderProf();
   updatePip();
   // Poll every 15s for new trades, messages, new members
@@ -870,6 +871,10 @@ async function pollData() {
       if (t) renderFolderMsgs(t);
     }
   } catch {}
+  // Also refresh group chat if chat tab open
+  if ($('pn-chat')?.classList.contains('on') && ST_chatTab === 'group') {
+    loadGroupChat();
+  }
 }
 
 async function saveMyCards(cards) {
@@ -1388,20 +1393,22 @@ async function sendGroupMsg() {
 
 // ── FRIEND REQUESTS ──
 async function sendFriendReq(toUser) {
+  // Store under /friendRequests/{toUser}/{myUsername} so toUser can see incoming request
   await fbSet('/friendRequests/'+toUser+'/'+ST.user.username, { from: ST.user.username, at: Date.now() });
   toast('Friend request sent! ♡');
-  openMem(toUser);
+  openMem(toUser);  // Refresh to show "Request Sent" state
 }
 
 async function acceptFriend(fromUser) {
   const me = ST.user.username;
   await Promise.all([
-    fbSet('/friends/'+me+'/'+fromUser, true),
-    fbSet('/friends/'+fromUser+'/'+me, true),
-    fbSet('/friendRequests/'+me+'/'+fromUser, null),
+    fbSet('/friends/'+me+'/'+fromUser, true),    // I have them as friend
+    fbSet('/friends/'+fromUser+'/'+me, true),    // They have me as friend
+    fbSet('/friendRequests/'+me+'/'+fromUser, null),  // Clear incoming request
+    fbSet('/friendRequests/'+fromUser+'/'+me, null),  // Clear any reverse request
   ]);
   toast('You are now friends! 💖');
-  openMem(fromUser);
+  openMem(fromUser);  // Refresh to show Message button
 }
 
 async function getFriends() {
@@ -1629,21 +1636,26 @@ async function openMem(u) {
   const doneT = tradeList().filter(t=>t.posterUsername===u&&t.status==='completed').length;
   const avH = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
   // Check friendship status
-  const [myFriendsData, theirReqsData] = await Promise.all([
+  const [myFriendsData, requestsToMe, requestsToThem] = await Promise.all([
     fbGet('/friends/'+ST.user.username),
-    fbGet('/friendRequests/'+ST.user.username)
+    fbGet('/friendRequests/'+ST.user.username),  // requests sent TO me
+    fbGet('/friendRequests/'+u)                   // requests sent TO them
   ]);
   const myFriends = myFriendsData || {};
-  const myIncoming = theirReqsData || {};
-  const theirSent = (await fbGet('/friendRequests/'+u)) || {};
+  const incomingToMe = requestsToMe || {};   // if incomingToMe[u] exists, u sent me a request
+  const incomingToThem = requestsToThem || {}; // if incomingToThem[ST.user.username] exists, I sent them a request
   let frBtn = '';
   if (myFriends[u]) {
+    // Already friends — show Message button
     frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}');closeM('m-mem')">💬 Message</button>`;
-  } else if (theirSent[ST.user.username]) {
+  } else if (incomingToMe[u]) {
+    // They sent ME a request — I can accept
     frBtn = `<button class="friend-req-btn fr-accept" onclick="acceptFriend('${u}')">💖 Accept Request</button>`;
-  } else if (myIncoming[u]) {
+  } else if (incomingToThem[ST.user.username]) {
+    // I sent THEM a request — waiting for their response
     frBtn = `<button class="friend-req-btn fr-pending">✓ Request Sent</button>`;
   } else {
+    // No relationship — show Add Friend
     frBtn = `<button class="friend-req-btn fr-send" onclick="sendFriendReq('${u}')">+ Add Friend</button>`;
   }
   $('mem-body').innerHTML = `
@@ -1669,22 +1681,9 @@ async function openMem(u) {
   openM('m-mem');
 }
 
-// ── EXTEND TRADE FOLDER WITH EMOJI/GIF/MEDIA ──
-// Patch openFolder to add chat toolbar after fd-msgs
-const _origOpenFolder = openFolder;
-function openFolder(id) {
-  _origOpenFolder(id);
-  // Add emoji/gif/media toolbar after msg area (already in HTML)
-}
+// openFolder: emoji/gif toolbar already in HTML
 
-// Poll group chat when on chat tab
-const _origPollData = pollData;
-async function pollData() {
-  await _origPollData();
-  if ($('pn-chat')?.classList.contains('on') && ST_chatTab === 'group') {
-    loadGroupChat();
-  }
-}
+// pollData: group chat polling handled in original
 
 // Update goTab to handle chat tab
 // chat tab handled in main goTab
