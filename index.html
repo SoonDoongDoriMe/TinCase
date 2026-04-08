@@ -792,12 +792,14 @@ async function loadAllData() {
    INIT
 ════════════════════════════════════════════════════════ */
 window.onerror = function(msg, src, line) {
-  if ($('scr-splash')?.classList.contains('on')) {
-    const d = document.createElement('div');
-    d.style.cssText = 'position:fixed;bottom:20px;left:10px;right:10px;background:#1a0010;color:#ff8fc2;padding:10px;border-radius:9px;font-size:11px;font-family:monospace;z-index:99999;border:1px solid #ff1f6e44';
-    d.textContent = 'Error: ' + msg + ' (line ' + line + ')';
-    document.body.appendChild(d);
-  }
+  console.error('JS Error:', msg, 'line', line);
+  // Show toast for JS errors so we can debug
+  if (typeof toast === 'function') toast('JS Error: ' + msg.slice(0,60));
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:20px;left:10px;right:10px;background:#1a0010;color:#ff8fc2;padding:10px;border-radius:9px;font-size:11px;font-family:monospace;z-index:99999;border:1px solid #ff1f6e44;pointer-events:none';
+  d.textContent = 'Error: ' + msg + ' (line ' + line + ')';
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 8000);
   return false;
 };
 
@@ -995,7 +997,7 @@ function goTab(tab, btn) {
   updateBackBar(tab!=='coll', tabNames[tab]||'');
   if(tab==='chat'){ST_chatTab='dms';setTimeout(()=>{const fc=$('chat-chips')?.querySelector('.chip'); if(fc){fc.classList.add('on');} loadDMList();},80);}
   if (tab==='coll')  { ST.cf=ST.cf||'all'; renderColl(); }
-  if (tab==='trade') { ST.tf='trade'; renderTrade(); }
+  if (tab==='trade') { ST.tf = ST.tf||'trade'; renderTrade(); }
   if (tab==='prof')  { renderProf(); renderProfRecent(); }
   if (tab==='chat')  { ST_chatTab='dms'; setTimeout(function(){ var fc=document.querySelector('#chat-chips .chip'); if(fc){document.querySelectorAll('#chat-chips .chip').forEach(c=>c.classList.remove('on'));fc.classList.add('on');} loadDMList(); },80); }
 }
@@ -1363,10 +1365,14 @@ function renderTrade() {
 }
 
 function tradeCardClick(idx) {
+  console.log('tradeCardClick', idx, window._tradeCards && window._tradeCards[idx]);
   var entry = window._tradeCards[idx];
-  if (!entry) return;
-  if (entry.owner === ST.user?.username) { openDet(entry.cardId); }
-  else { openCommunityCard(entry.owner, entry.cardId); }
+  if (!entry) { toast('Tap error — please try again'); return; }
+  if (entry.owner === ST.user?.username) {
+    openDet(entry.cardId);
+  } else {
+    openMem(entry.owner);
+  }
 }
 function favCardClick(idx) {
   var entry = window._tradeCards[idx];
@@ -2261,7 +2267,17 @@ async function sendMediaMsg(id, e) {
 
 // ── MEMBER PROFILE: friend req + DM button ──
 async function openMem(u) {
-  const d = ST.users[u]; if (!d) return;
+  let d = ST.users[u];
+  if (!d) {
+    // Try reloading users from Firebase
+    toast('Loading profile…');
+    try {
+      const fresh = await fbGet('/users');
+      if (fresh) ST.users = fresh;
+      d = ST.users[u];
+    } catch(e) {}
+    if (!d) { toast('Could not load profile for @' + u); return; }
+  }
   $('mem-t').textContent = d.displayName || u;
   const trades = tradeList().filter(t=>t.posterUsername===u&&t.status==='open');
   const doneT = tradeList().filter(t=>t.posterUsername===u&&t.status==='completed').length;
@@ -2398,8 +2414,10 @@ function openFolderFromMem(tradeId) {
 var _cdetOwner = '', _cdetCardId = '';
 
 function openCommunityCard(owner, cardId) {
-  const userData = ST.users[owner]; if (!userData) return;
-  const c = (userData.cards||[]).find(x=>x.id===cardId); if (!c) return;
+  const userData = ST.users[owner];
+  if (!userData) { openMem(owner); return; } // fallback to profile
+  const c = (userData.cards||[]).find(x=>x.id===cardId);
+  if (!c) { openMem(owner); return; } // fallback to profile
   _cdetOwner = owner; _cdetCardId = cardId;
 
   const nm=cNm(c), sb=cSb(c);
