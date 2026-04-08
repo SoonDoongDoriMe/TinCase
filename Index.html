@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="틴케이스">
+<meta name="theme-color" content="#08080f">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMGYwYTFlIi8+PHJlY3QgeD0iMjIiIHk9IjM0IiB3aWR0aD0iNjgiIGhlaWdodD0iMTA4IiByeD0iMTAiIGZpbGw9IiNmZjFmNmUiIG9wYWNpdHk9Ii43Ii8+PHJlY3QgeD0iMTAyIiB5PSIzNCIgd2lkdGg9IjY4IiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNmZjFmNmUiIG9wYWNpdHk9Ii42Ii8+PHJlY3QgeD0iMTAyIiB5PSI5NCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI2ZmMWY2ZSIgb3BhY2l0eT0iLjQiLz48cmVjdCB4PSIxNDAiIHk9Ijk0IiB3aWR0aD0iMzAiIGhlaWdodD0iNDgiIHJ4PSI4IiBmaWxsPSIjZmYxZjZlIiBvcGFjaXR5PSIuNCIvPjx0ZXh0IHg9Ijk2IiB5PSIxNDQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSInTm90byBTYW5zIEtSJyxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9Ijg4IiBmaWxsPSIjZmY4ZmMyIj7ti7Q8L3RleHQ+PC9zdmc+">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMGYwYTFlIi8+PHJlY3QgeD0iMjIiIHk9IjM0IiB3aWR0aD0iNjgiIGhlaWdodD0iMTA4IiByeD0iMTAiIGZpbGw9IiNmZjFmNmUiIG9wYWNpdHk9Ii43Ii8+PHJlY3QgeD0iMTAyIiB5PSIzNCIgd2lkdGg9IjY4IiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNmZjFmNmUiIG9wYWNpdHk9Ii42Ii8+PHRleHQgeD0iOTYiIHk9IjE0NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IidOb3RvIFNhbnMgS1InLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iODgiIGZpbGw9IiNmZjhmYzIiPu2LtDwvdGV4dD48L3N2Zz4=">
+<title>틴케이스 · Tin Case</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<style>
+:root{
+  --pk:#ff1f6e;--pk2:#ff5fa0;--pg:#ff1f6e44;--pp:#ff1f6e13;
+  --bk:#08080f;--dk:#0d0d18;--cd:#12121f;--sf:#18182a;--sf2:#1e1e30;
+  --bd:rgba(255,255,255,.07);--bdp:rgba(255,31,110,.25);
+  --tx:#f0eafa;--dm:#9088a8;--mt:#4a4060;
+  --gd:#ffd166;--mn:#06d6a0;--bl:#3b8bff;
+  --r:16px;--rs:10px;--sh:0 12px 40px rgba(0,0,0,.6);--gw:0 0 40px rgba(255,31,110,.2);
+  --nh:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;height:-webkit-fill-available;}
+body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:var(--bk);color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--pg);border-radius:99px;}
+#app{height:100vh;height:-webkit-fill-available;display:flex;flex-direction:column;overflow:hidden;}
+.scr{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.scr.on{display:flex;}
+
+/* SETUP */
+#scr-setup{background:radial-gradient(ellipse 80% 60% at 30% 20%,#ff1f6e1a,transparent 60%),var(--bk);align-items:center;justify-content:center;padding:22px;overflow-y:auto;}
+.setup-box{width:100%;max-width:400px;background:var(--cd);border-radius:22px;border:1px solid var(--bdp);padding:26px 22px;box-shadow:var(--gw),var(--sh);}
+.setup-logo{font-family:'Noto Sans KR',sans-serif;font-size:30px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,#ff8fc2,var(--pk),#c4005e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.step{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start;}
+.step-n{width:24px;height:24px;border-radius:50%;background:var(--pk);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-t{font-size:13px;font-weight:700;margin-bottom:3px;}
+.step-d{font-size:12px;color:var(--dm);line-height:1.55;}
+.step-lnk{color:var(--pk2);text-decoration:underline;cursor:pointer;}
+
+/* SPLASH */
+#scr-splash{background:var(--bk);align-items:center;justify-content:center;}
+.sp-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;animation:fadeUp .8s ease forwards;}
+.sp-kr{font-family:'Noto Sans KR',sans-serif;font-size:36px;font-weight:900;background:linear-gradient(135deg,#ff8fc2,var(--pk),#c4005e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sp-en{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--mt);letter-spacing:4px;text-transform:uppercase;}
+.sp-bar{width:72px;height:2px;background:var(--sf2);border-radius:99px;margin-top:16px;overflow:hidden;}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--pk2),var(--pk));border-radius:99px;animation:fillBar 1.8s ease forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fillBar{from{width:0}to{width:100%}}
+
+/* LOGIN */
+#scr-login{background:radial-gradient(ellipse 80% 60% at 20% 10%,#ff1f6e20,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,#9b2fff15,transparent 60%),var(--bk);align-items:center;justify-content:flex-start;padding:20px;overflow-y:auto;}
+.lg-brand{text-align:center;padding:16px 0 20px;width:100%;max-width:380px;}
+.lg-kr{font-family:'Noto Sans KR',sans-serif;font-size:30px;font-weight:900;background:linear-gradient(135deg,#ff8fc2,var(--pk),#c4005e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.lg-en{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--mt);letter-spacing:4px;text-transform:uppercase;margin-top:3px;}
+.lg-box{width:100%;max-width:380px;background:var(--cd);border-radius:22px;border:1px solid var(--bdp);padding:20px;box-shadow:var(--gw),var(--sh);}
+.ltabs{display:flex;gap:3px;background:var(--sf);border-radius:9px;padding:3px;margin-bottom:16px;}
+.ltab{flex:1;text-align:center;padding:8px;border-radius:7px;font-size:12px;font-weight:600;color:var(--mt);cursor:pointer;transition:all .2s;}
+.ltab.on{background:var(--pk);color:#fff;}
+.su-row{display:flex;gap:7px;overflow-x:auto;margin-bottom:12px;padding-bottom:3px;}
+.su{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:7px 9px;border-radius:12px;border:1.5px solid var(--bd);background:var(--sf);min-width:56px;}
+.su:active{border-color:var(--pk);}
+.su-av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;}
+.su-av img,.pav img,.fav img{width:100%;height:100%;object-fit:cover;}
+.su-nm{font-size:9px;font-weight:600;color:var(--dm);text-align:center;max-width:52px;overflow:hidden;text-overflow:ellipsis;}
+
+/* NAV */
+#scr-app{display:none;flex-direction:column;flex:1;overflow:hidden;}
+#scr-app.on{display:flex;}
+.bnav{display:flex;background:rgba(13,13,24,.97);border-top:1px solid var(--bdp);padding:6px 2px calc(6px + env(safe-area-inset-bottom));height:var(--nh);flex-shrink:0;z-index:100;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--mt);transition:all .2s;position:relative;}
+.nb.on{color:var(--pk);}
+.nb svg{width:20px;height:20px;transition:all .25s;}
+.nb.on svg{filter:drop-shadow(0 0 7px var(--pk));transform:scale(1.1) translateY(-1px);}
+.nb-lbl{font-size:8px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.nb-pip{position:absolute;top:3px;right:calc(50% - 17px);width:14px;height:14px;border-radius:50%;background:var(--pk);font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;}
+.pane{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.pane.on{display:flex;}
+.hdr{padding:12px 16px 10px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--dk) 0%,transparent 100%);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:10;}
+.hdr-kr{font-family:'Noto Sans KR',sans-serif;font-size:19px;font-weight:900;background:linear-gradient(135deg,var(--pk2),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mt);margin-top:2px;}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:7px;}
+.scrl{flex:1;overflow-y:auto;padding:13px;-webkit-overflow-scrolling:touch;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:var(--rs);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap;}
+.btn:active{transform:scale(.96);}
+.btn-p{background:linear-gradient(135deg,var(--pk2),var(--pk));color:#fff;box-shadow:0 4px 18px var(--pg);}
+.btn-o{background:transparent;color:var(--pk);border:1.5px solid var(--pk);}
+.btn-g{background:var(--sf2);color:var(--tx);}
+.btn-d{background:#ff444420;color:#ff8888;border:1.5px solid #ff444430;}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px;}
+.btn-ic{width:34px;height:34px;padding:0;border-radius:50%;background:var(--sf2);color:var(--tx);}
+.fab{position:fixed;bottom:calc(var(--nh)+10px);left:50%;transform:translateX(-50%);width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--pk2),var(--pk));box-shadow:0 4px 20px var(--pg),0 0 0 4px var(--pp);z-index:50;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;}
+.fab:active{transform:translateX(-50%) scale(.9);}
+
+/* INPUTS */
+.inp,.ta,.sel{width:100%;padding:10px 13px;border-radius:var(--rs);background:var(--sf);border:1.5px solid var(--bd);color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.inp:focus,.ta:focus,.sel:focus{border-color:var(--pk);box-shadow:0 0 0 3px var(--pp);}
+.inp::placeholder,.ta::placeholder{color:var(--mt);}
+.inp.ok{border-color:var(--mn);}
+.inp.bad{border-color:#ff6666;}
+.ta{resize:vertical;min-height:64px;}
+.sel{appearance:none;cursor:pointer;}
+.lbl{font-size:10px;font-weight:600;color:var(--dm);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.fg{margin-bottom:12px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.fh{font-size:11px;color:var(--mt);margin-top:4px;}
+.fh.ok{color:var(--mn);}
+.fh.err{color:#ff6666;}
+
+/* CHIPS */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;}
+.chip{flex-shrink:0;padding:5px 13px;border-radius:99px;background:var(--sf);border:1.5px solid var(--bd);color:var(--dm);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;}
+.chip.on{background:var(--pk);border-color:var(--pk);color:#fff;box-shadow:0 0 14px var(--pg);}
+
+/* CARDS */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px;}
+.pcard{background:var(--cd);border-radius:var(--r);border:1px solid var(--bd);overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.pcard:active{border-color:var(--pk);}
+.pcard.trading{opacity:.75;filter:grayscale(.4);}
+.pc-img{aspect-ratio:2/3;background:var(--sf);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.pc-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.pc-inf{padding:8px 9px 10px;}
+.pc-art{font-size:9px;color:var(--pk);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.pc-nm{font-size:12px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-alb{font-size:10px;color:var(--dm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc-unit{font-size:9px;color:var(--bl);font-weight:600;}
+.bdg{position:absolute;border-radius:5px;font-size:7px;font-weight:700;padding:2px 5px;z-index:3;}
+.b-tr{top:6px;right:6px;background:var(--pk);color:#fff;}
+.b-ing{top:6px;right:6px;background:#ff9900bb;color:#fff;animation:blink 1.5s infinite;}
+.b-wi{top:6px;left:6px;background:#ffd16699;color:#fff;}
+.b-kp{bottom:6px;left:6px;background:#9b2fff99;color:#fff;}
+.b-un{bottom:6px;right:6px;background:#3b8bff99;color:#fff;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* PHOTO STRIP */
+.pstrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.pthumb{flex-shrink:0;width:70px;height:105px;border-radius:9px;overflow:hidden;position:relative;background:var(--sf);border:1.5px solid var(--bd);}
+.pthumb img{width:100%;height:100%;object-fit:cover;}
+.pdel{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.75);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;z-index:2;}
+.padd{flex-shrink:0;width:70px;height:105px;border-radius:9px;border:2px dashed var(--bdp);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--pk);font-size:10px;font-weight:700;background:var(--pp);}
+
+/* TOGGLE */
+.trow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);}
+.trow:last-child{border-bottom:none;}
+.tr-l{font-size:13px;color:var(--tx);}
+.tr-s{font-size:10px;color:var(--mt);margin-top:1px;}
+.tog{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;position:absolute;}
+.tog-t{position:absolute;inset:0;background:var(--sf2);border-radius:99px;border:1.5px solid var(--bd);transition:all .2s;cursor:pointer;}
+.tog input:checked~.tog-t{background:var(--pk);border-color:var(--pk);}
+.tog-h{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;pointer-events:none;}
+.tog input:checked~.tog-h{left:21px;}
+
+/* OVERLAY / MODAL */
+.ovl{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);align-items:flex-end;justify-content:center;}
+.ovl.on{display:flex;}
+.modal{background:var(--dk);border-radius:22px 22px 0 0;border:1px solid var(--bdp);border-bottom:none;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom);animation:slideUp .3s cubic-bezier(.16,1,.3,1);}
+.mfull{border-radius:0;max-height:100vh;height:100vh;}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.mhdl{width:34px;height:4px;background:var(--bd);border-radius:99px;margin:10px auto 0;}
+.mhdr{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--dk);z-index:10;}
+.mtitle{font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;flex:1;}
+.mbody{padding:16px;}
+
+/* GALLERY */
+.gal-main{width:100%;aspect-ratio:2/3;max-height:290px;object-fit:contain;background:var(--sf);display:block;}
+.gal-strip{display:flex;gap:6px;padding:8px 15px;overflow-x:auto;}
+.gal-t{width:44px;height:66px;flex-shrink:0;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:var(--sf);}
+.gal-t.on{border-color:var(--pk);}
+.gal-t img{width:100%;height:100%;object-fit:cover;}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;}
+.tg-p{background:var(--pp);color:var(--pk2);border:1px solid var(--bdp);}
+.tg-g{background:#ffd16618;color:var(--gd);border:1px solid #ffd16633;}
+.tg-m{background:#06d6a018;color:var(--mn);border:1px solid #06d6a033;}
+.tg-gr{background:var(--sf);color:var(--dm);border:1px solid var(--bd);}
+.tg-pu{background:#9b2fff18;color:#c080ff;border:1px solid #9b2fff33;}
+.tg-b{background:#3b8bff18;color:#7db8ff;border:1px solid #3b8bff33;}
+
+/* MESSAGES */
+.msg-area{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:7px;background:var(--bk);min-height:100px;}
+.mw{display:flex;flex-direction:column;}
+.mw.me{align-items:flex-end;}
+.mw.them{align-items:flex-start;}
+.msnd{font-size:9px;color:var(--mt);margin-bottom:2px;}
+.bbl{max-width:78%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word;}
+.bbl.me{background:linear-gradient(135deg,var(--pk2),var(--pk));color:#fff;border-bottom-right-radius:3px;}
+.bbl.them{background:var(--sf2);color:var(--tx);border-bottom-left-radius:3px;}
+.mt-time{font-size:9px;color:var(--mt);margin-top:2px;}
+.msg-bar{display:flex;gap:7px;padding:9px 13px;border-top:1px solid var(--bd);background:var(--dk);flex-shrink:0;}
+.msg-bar .inp{flex:1;padding:8px 12px;}
+
+/* FOLDER CARD */
+.fcard{background:var(--cd);border-radius:var(--r);border:1px solid var(--bd);margin-bottom:10px;cursor:pointer;overflow:hidden;transition:border-color .2s;}
+.fcard:active{border-color:var(--pk);}
+.fcard-h{padding:12px;display:flex;align-items:center;gap:10px;}
+.fav{width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;}
+.fcard-msg{padding:0 12px 10px;font-size:11px;color:var(--mt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* PROFILE */
+.pcover{width:100%;height:155px;position:relative;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1a0a2e,#2a0a1e);cursor:pointer;}
+.pcover img{width:100%;height:100%;object-fit:cover;}
+.pcover-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(8,8,15,.85) 100%);}
+.pcover-btn{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:600;color:#fff;}
+.pav-wrap{position:relative;margin:-40px auto 0;width:80px;z-index:5;text-align:center;}
+.pav{width:80px;height:80px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;border:3px solid var(--dk);cursor:pointer;}
+.pav-ed{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--pk);border:2px solid var(--dk);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;}
+.pinf{text-align:center;padding:10px 16px 0;}
+.pnm{font-family:'Noto Sans KR',sans-serif;font-size:21px;font-weight:900;}
+.phndl{font-size:11px;color:var(--pk);margin-top:2px;}
+.pbio{font-size:12px;color:var(--dm);margin-top:7px;line-height:1.55;font-style:italic;}
+.pstats{display:flex;justify-content:center;gap:24px;padding:14px 0 0;}
+.psn{font-size:21px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif;}
+.psl{font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin-top:1px;}
+
+/* COLLECTION */
+.cbox{background:var(--cd);border-radius:var(--r);border:1px solid var(--bd);padding:14px;margin-bottom:14px;}
+.cn{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:var(--pk);line-height:1;}
+.crow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px;}
+.crow:last-child{border-bottom:none;}
+.prog{width:74px;height:5px;background:var(--sf2);border-radius:99px;overflow:hidden;}
+.prog-f{height:100%;background:var(--pk);border-radius:99px;}
+
+/* SELECT CARDS */
+.sgrid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.sc{flex-shrink:0;width:68px;cursor:pointer;border-radius:9px;overflow:hidden;border:2px solid var(--bd);transition:all .2s;}
+.sc.on{border-color:var(--pk);box-shadow:0 0 12px var(--pg);}
+.sc .sci{aspect-ratio:2/3;background:var(--sf);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--mt);}
+.sc .sci img{width:100%;height:100%;object-fit:cover;display:block;}
+.sc .scn{font-size:9px;text-align:center;padding:3px;color:var(--dm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* AUTOCOMPLETE */
+.acw{position:relative;}
+.acd{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--sf2);border:1.5px solid var(--bdp);border-radius:var(--rs);z-index:300;max-height:170px;overflow-y:auto;box-shadow:var(--sh);display:none;}
+.acd.open{display:block;}
+.aci{padding:9px 13px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bd);}
+.aci:last-child{border-bottom:none;}
+.aci:active{background:var(--pp);}
+.acnew{padding:9px 13px;font-size:11px;color:var(--mn);cursor:pointer;border-top:1px solid var(--bd);}
+
+/* CATEGORY BTN */
+.cat-row{display:flex;gap:7px;margin-bottom:12px;}
+.cbt{flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--dm);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;}
+.cbt.on{border-color:var(--pk);background:var(--pp);color:var(--pk2);}
+
+/* MISC */
+.empty{text-align:center;padding:44px 16px;}
+.empty .ei{font-size:44px;margin-bottom:10px;opacity:.4;}
+.empty h3{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:5px;}
+.empty p{font-size:12px;line-height:1.6;color:var(--dm);max-width:220px;margin:0 auto;}
+.divl{height:1px;background:var(--bd);margin:11px 0;}
+.st{font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.stars{color:var(--gd);letter-spacing:2px;}
+.pip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.save-ind{position:fixed;top:env(safe-area-inset-top,0);right:0;background:var(--mn);color:#000;font-size:10px;font-weight:700;padding:3px 10px;border-radius:0 0 0 8px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.save-ind.on{opacity:1;}
+.hidden{display:none!important;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bdp);border-top-color:var(--pk);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-ok{font-size:10px;color:var(--mn);}
+.sync-err{font-size:10px;color:#ff8888;}
+
+/* ── SOCIAL / CHAT ── */
+.friend-req-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .2s;}
+.friend-req-btn:active{transform:scale(.95);}
+.fr-send{background:var(--pk);color:#fff;box-shadow:0 2px 10px var(--pg);}
+.fr-pending{background:var(--sf2);color:var(--dm);}
+.fr-accept{background:var(--mn);color:#000;}
+.fr-friends{background:var(--sf2);color:var(--mn);border:1px solid var(--mn);}
+.emoji-tray{display:none;flex-wrap:wrap;gap:3px;padding:8px 10px;background:var(--dk);border-top:1px solid var(--bd);max-height:130px;overflow-y:auto;}
+.emoji-tray.on{display:flex;}
+.emoji-tray span{font-size:22px;cursor:pointer;padding:3px;border-radius:6px;line-height:1.2;}
+.emoji-tray span:active{background:var(--pp);}
+.chat-toolbar{display:flex;gap:4px;padding:5px 10px;background:var(--dk);border-top:1px solid var(--bd);}
+.chat-tb-btn{background:none;border:none;cursor:pointer;font-size:17px;padding:5px 7px;border-radius:8px;color:var(--dm);transition:background .15s;line-height:1;}
+.chat-tb-btn:active{background:var(--sf2);}
+.gif-panel{display:none;background:var(--sf);border-top:1px solid var(--bd);}
+.gif-panel.on{display:block;}
+.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:7px;max-height:180px;overflow-y:auto;}
+.gif-grid img{width:100%;border-radius:6px;cursor:pointer;aspect-ratio:4/3;object-fit:cover;}
+.gif-search-inp{padding:7px 10px;width:100%;}
+.msg-media{max-width:220px;border-radius:10px;margin-top:4px;display:block;cursor:pointer;}
+video.msg-media{max-width:220px;}
+</style>
+<div id="app">
+
+<!-- SETUP -->
+<!-- SPLASH -->
+<div id="scr-splash" class="scr on">
+  <div class="sp-wrap">
+    <svg width="70" height="70" viewBox="0 0 192 192" style="filter:drop-shadow(0 0 18px var(--pg))"><rect width="192" height="192" rx="38" fill="#0f0a1e"/><rect x="22" y="34" width="68" height="108" rx="10" fill="#ff1f6e" opacity=".7"/><rect x="102" y="34" width="68" height="50" rx="10" fill="#ff1f6e" opacity=".6"/><rect x="102" y="94" width="30" height="48" rx="8" fill="#ff1f6e" opacity=".4"/><rect x="140" y="94" width="30" height="48" rx="8" fill="#ff1f6e" opacity=".4"/><text x="96" y="144" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-weight="900" font-size="88" fill="#ff8fc2">틴</text></svg>
+    <div class="sp-kr">틴케이스</div>
+    <div class="sp-en">Tin Case</div>
+    <div class="sp-bar"><div class="sp-fill"></div></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="scr-login" class="scr">
+  <div class="lg-brand"><div class="lg-kr">틴케이스</div><div class="lg-en">Tin Case</div></div>
+  <div class="lg-box">
+    <div class="ltabs">
+      <div class="ltab on" id="lt-in" onclick="switchAuth('in')">Sign In</div>
+      <div class="ltab" id="lt-up" onclick="switchAuth('up')">Create Account</div>
+    </div>
+    <div id="auth-in">
+      <div id="su-sec" style="display:none;margin-bottom:12px"><div class="lbl">Quick Sign In</div><div class="su-row" id="su-list"></div></div>
+      <div class="fg"><label class="lbl">Username</label><input class="inp" id="li-u" placeholder="@yourhandle" autocapitalize="none" autocorrect="off" oninput="document.getElementById('li-err').classList.add('hidden')"></div>
+      <div class="fh err hidden" id="li-err" style="margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><input type="checkbox" id="li-rem" style="width:15px;height:15px;accent-color:var(--pk)" checked><label for="li-rem" style="font-size:12px;color:var(--dm);cursor:pointer">Keep me signed in</label></div>
+      <button class="btn btn-p" style="width:100%" onclick="doLogin()">Sign In ✦</button>
+    </div>
+    <div id="auth-up" style="display:none">
+      <div class="fg"><label class="lbl">Username</label>
+        <div style="position:relative"><input class="inp" id="reg-u" placeholder="e.g. starlight_jin" autocapitalize="none" autocorrect="off" oninput="checkU(this.value)"><span id="reg-u-st" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700"></span></div>
+        <div class="fh" id="reg-u-h"></div><div id="reg-sugg" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+      </div>
+      <div class="fg"><label class="lbl">Display Name</label><input class="inp" id="reg-n" placeholder="Your name"></div>
+      <div class="fg"><label class="lbl">Recovery Email <span style="color:var(--mt);font-weight:400">(optional)</span></label><input class="inp" id="reg-e" type="email" placeholder="your@email.com"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><input type="checkbox" id="reg-rem" style="width:15px;height:15px;accent-color:var(--pk)" checked><label for="reg-rem" style="font-size:12px;color:var(--dm);cursor:pointer">Keep me signed in</label></div>
+      <button class="btn btn-p" style="width:100%" onclick="doRegister()">Create Account ✦</button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:var(--mt);margin-top:12px">Cloud synced · Works on all devices ♡</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="scr-app">
+
+  <!-- VAULT -->
+  <div id="pn-vault" class="pane on">
+    <div class="hdr">
+      <div><div class="hdr-kr">틴케이스</div><div class="hdr-sub">My Vault</div></div>
+      <div class="hdr-r">
+        <span id="sync-badge" style="display:none;font-size:10px"></span>
+        <button class="btn btn-ic" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+      </div>
+    </div>
+    <div class="scrl">
+      <div class="chips" id="vc-chips">
+        <div class="chip on" onclick="vf('all',this)">All</div>
+        <div class="chip" onclick="vf('keep',this)">Keeping</div>
+        <div class="chip" onclick="vf('solo',this)">Solo</div>
+        <div class="chip" onclick="vf('unit',this)">Unit</div>
+        <div class="chip" onclick="vf('trade',this)">For Trade</div>
+        <div class="chip" onclick="vf('wish',this)">ISO</div>
+        <div class="chip" onclick="vf('dupe',this)">Dupes</div>
+      </div>
+      <div class="grid" id="vault-grid"></div>
+      <div class="empty hidden" id="vault-empty"><div class="ei">🃏</div><h3>Vault is empty</h3><p>Tap + to add your first photocard!</p></div>
+    </div>
+    <button class="fab" onclick="openCard(null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+  </div>
+
+  <!-- COLLECTION -->
+  <div id="pn-coll" class="pane">
+    <div class="hdr"><div><div class="hdr-kr">컬렉션</div><div class="hdr-sub">My Collection</div></div></div>
+    <div class="scrl" id="coll-body"></div>
+  </div>
+
+  <!-- TRADE -->
+  <div id="pn-trade" class="pane">
+    <div class="hdr">
+      <div><div class="hdr-kr">트레이드</div><div class="hdr-sub">Community</div></div>
+      <div class="hdr-r"><button class="btn btn-sm btn-p" onclick="openPropose(null)">+ Offer</button></div>
+    </div>
+    <div class="scrl">
+      <input class="inp" id="trade-q" placeholder="Search trades or members…" oninput="renderTrade()" style="margin-bottom:12px">
+      <div class="chips" id="tc-chips">
+        <div class="chip on" onclick="tf('open',this)">Open</div>
+        <div class="chip" onclick="tf('mine',this)">Mine</div>
+        <div class="chip" onclick="tf('all',this)">All</div>
+        <div class="chip" onclick="tf('members',this)">Members</div>
+      </div>
+      <div id="trade-list"></div>
+      <div id="member-list" style="display:none"></div>
+      <div class="empty hidden" id="trade-empty"><div class="ei">🔄</div><h3>No trades yet</h3><p>Post an offer to start trading!</p></div>
+      <div id="arch-sec" style="display:none;border-top:1px solid var(--bd);margin-top:8px">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer" onclick="toggleArch()">
+          <span style="font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;color:var(--dm)">Completed Trades</span>
+          <span id="arch-cnt" style="font-size:10px;color:var(--mt);background:var(--sf);border-radius:99px;padding:2px 7px;border:1px solid var(--bd)">0</span>
+          <span id="arch-arr" style="margin-left:auto;color:var(--mt);transition:transform .2s">▾</span>
+        </div>
+        <div id="arch-body" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="pn-prof" class="pane">
+    <div class="scrl" style="padding:0">
+      <div class="pcover" onclick="document.getElementById('bg-in').click()">
+        <div class="pcover-ov"></div>
+        <div class="pcover-btn">📷 Change</div>
+      </div>
+      <div class="pav-wrap"><div class="pav" id="pav" onclick="document.getElementById('av-in').click()"></div><div class="pav-ed" onclick="document.getElementById('av-in').click()">📷</div></div>
+      <div class="pinf">
+        <div class="pnm" id="p-nm"></div><div class="phndl" id="p-hndl"></div>
+        <div class="pbio hidden" id="p-bio"></div>
+        <div class="pstats">
+          <div><div class="psn" id="ps-c">0</div><div class="psl">Cards</div></div>
+          <div><div class="psn" id="ps-t">0</div><div class="psl">Trades</div></div>
+          <div><div class="psn" id="ps-k">0</div><div class="psl">Keeping</div></div>
+        </div>
+      </div>
+      <div style="padding:14px 15px 24px">
+        <div class="divl"></div>
+        <div class="st">Recent Cards</div>
+        <div class="grid" id="p-rcnt"></div>
+        <div class="divl"></div>
+        <button class="btn btn-o" style="width:100%;margin-bottom:9px" onclick="openEditProf()">✏️ Edit Profile</button>
+        <button class="btn btn-d" style="width:100%;margin-bottom:9px" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── CHAT TAB ── -->
+  <div id="pn-chat" class="pane">
+    <div class="hdr"><div><div class="hdr-kr">채팅</div><div class="hdr-sub">Chat</div></div></div>
+    <div class="chips" id="chat-chips" style="padding:10px 13px 0;margin-bottom:0">
+      <div class="chip on" onclick="chatTab('group',this)">🌸 Group Chat</div>
+      <div class="chip" onclick="chatTab('dms',this)">💬 DMs</div>
+      <div class="chip" onclick="chatTab('friends',this)">👥 Friends</div>
+    </div>
+    <!-- GROUP CHAT -->
+    <div id="chat-group" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+      <div class="msg-area" id="gc-msgs" style="flex:1;min-height:0"></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('gc')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('gc')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('gc-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="gc-emoji"></div>
+      <div class="gif-panel" id="gc-gif">
+        <input class="inp gif-search-inp" id="gc-gif-q" placeholder="Search GIFs… (e.g. kpop dance)" oninput="searchGif('gc')">
+        <div class="gif-grid" id="gc-gif-grid"></div>
+      </div>
+      <div class="msg-bar">
+        <input class="inp" id="gc-msg" placeholder="Message everyone…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGroupMsg()}">
+        <button class="btn btn-p btn-sm" onclick="sendGroupMsg()">Send</button>
+      </div>
+      <input type="file" id="gc-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('gc',event)">
+    </div>
+    <!-- DM LIST -->
+    <div id="chat-dms" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
+    <!-- FRIENDS LIST -->
+    <div id="chat-friends" style="display:none;flex:1;overflow-y:auto;padding:13px"></div>
+  </div>
+
+  <!-- ── DM CONVERSATION MODAL ── -->
+  <div class="ovl" id="m-dm">
+    <div class="modal mfull" style="display:flex;flex-direction:column">
+      <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-dm')">←</button><div class="mtitle" id="dm-t"></div></div>
+      <div class="msg-area" id="dm-msgs" style="flex:1;min-height:0"></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('dm')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('dm')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('dm-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="dm-emoji"></div>
+      <div class="gif-panel" id="dm-gif">
+        <input class="inp gif-search-inp" id="dm-gif-q" placeholder="Search GIFs…" oninput="searchGif('dm')">
+        <div class="gif-grid" id="dm-gif-grid"></div>
+      </div>
+      <div class="msg-bar">
+        <input class="inp" id="dm-msg" placeholder="Send a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDM()}">
+        <button class="btn btn-p btn-sm" onclick="sendDM()">Send</button>
+      </div>
+      <input type="file" id="dm-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('dm',event)">
+    </div>
+  </div>
+
+  <nav class="bnav">
+    <button class="nb on" id="nb-vault" onclick="goTab('vault',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="nb-lbl">Vault</span></button>
+    <button class="nb" id="nb-coll" onclick="goTab('coll',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="nb-lbl">Collection</span></button>
+    <button class="nb" id="nb-trade" onclick="goTab('trade',this)"><div style="position:relative;display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="nb-pip hidden" id="trade-pip">0</span></div><span class="nb-lbl">Trade</span></button>
+    <button class="nb" id="nb-chat" onclick="goTab('chat',this)">
+      <div style="position:relative;display:inline-flex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="nb-pip hidden" id="chat-pip" style="background:var(--mn);color:#000"></span>
+      </div>
+      <span class="nb-lbl">Chat</span>
+    </button>
+    <button class="nb" id="nb-prof"  onclick="goTab('prof',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nb-lbl">Profile</span></button>
+  </nav>
+</div>
+
+<!-- MODALS -->
+<div class="ovl" id="m-card">
+  <div class="modal">
+    <div class="mhdl"></div>
+    <div class="mhdr"><div class="mtitle" id="m-card-t">포토카드 추가</div><button class="btn btn-ic" onclick="closeM('m-card')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="lbl">Photos</label><div class="pstrip" id="pstrip"></div></div>
+      <div class="fg"><label class="lbl">Card Category</label><div class="cat-row"><div class="cbt on" id="cat-solo" onclick="setCat('solo')">👤 Solo</div><div class="cbt" id="cat-unit" onclick="setCat('unit')">👥 Unit</div></div></div>
+      <div class="fg"><label class="lbl">Artist / Group *</label><div class="acw"><input class="inp" id="c-art" placeholder="e.g. Stray Kids" autocomplete="off" oninput="acA()" onfocus="acA()" onblur="setTimeout(()=>hideAc('acd-art'),180)"><div class="acd" id="acd-art"></div></div></div>
+      <div class="fg" id="f-mem"><label class="lbl">Member *</label><div class="acw"><input class="inp" id="c-mem" placeholder="e.g. Lee Know" autocomplete="off" oninput="acM('c-mem','acd-mem')" onfocus="acM('c-mem','acd-mem')" onblur="setTimeout(()=>hideAc('acd-mem'),180)"><div class="acd" id="acd-mem"></div></div></div>
+      <div id="f-unit" style="display:none">
+        <div class="fg"><label class="lbl">Unit Name (optional)</label><input class="inp" id="c-uname" placeholder="e.g. 3RACHA, Woosan"></div>
+        <div class="fg2">
+          <div class="fg"><label class="lbl">Member 1 *</label><div class="acw"><input class="inp" id="c-u1" placeholder="e.g. Han" autocomplete="off" oninput="acM('c-u1','acd-u1')" onblur="setTimeout(()=>hideAc('acd-u1'),180)"><div class="acd" id="acd-u1"></div></div></div>
+          <div class="fg"><label class="lbl">Member 2 *</label><div class="acw"><input class="inp" id="c-u2" placeholder="e.g. Changbin" autocomplete="off" oninput="acM('c-u2','acd-u2')" onblur="setTimeout(()=>hideAc('acd-u2'),180)"><div class="acd" id="acd-u2"></div></div></div>
+        </div>
+        <div class="fg"><label class="lbl">Member 3 (optional)</label><div class="acw"><input class="inp" id="c-u3" placeholder="e.g. Jisung" autocomplete="off" oninput="acM('c-u3','acd-u3')" onblur="setTimeout(()=>hideAc('acd-u3'),180)"><div class="acd" id="acd-u3"></div></div></div>
+      </div>
+      <div class="fg"><label class="lbl">Album / Era *</label><div class="acw"><input class="inp" id="c-alb" placeholder="e.g. NOEASY" autocomplete="off" oninput="acAl()" onfocus="acAl()" onblur="setTimeout(()=>hideAc('acd-alb'),180)"><div class="acd" id="acd-alb"></div></div></div>
+      <div class="fg2">
+        <div class="fg"><label class="lbl">Type</label><select class="sel inp" id="c-typ"><option value="official">Official</option><option value="pob">POB</option><option value="fansign">Fansign</option><option value="season">Season's Greetings</option><option value="special">Special Edition</option><option value="other">Other</option></select></div>
+        <div class="fg"><label class="lbl">Condition</label><select class="sel inp" id="c-cnd"><option value="5">★★★★★ Mint</option><option value="4">★★★★☆ Near Mint</option><option value="3">★★★☆☆ Good</option><option value="2">★★☆☆☆ Fair</option><option value="1">★☆☆☆☆ Poor</option></select></div>
+      </div>
+      <div class="fg"><label class="lbl">Notes</label><textarea class="ta" id="c-notes" placeholder="Details, print run, special info…"></textarea></div>
+      <div style="background:var(--sf);border-radius:var(--rs);padding:3px 13px;margin-bottom:13px">
+        <div class="trow"><div><div class="tr-l">Keeping</div><div class="tr-s">Permanently keeping this card</div></div><label class="tog"><input type="checkbox" id="c-keep"><div class="tog-t"></div><div class="tog-h"></div></label></div>
+        <div class="trow"><div><div class="tr-l">For Trade</div><div class="tr-s">Show on community board</div></div><label class="tog"><input type="checkbox" id="c-trd"><div class="tog-t"></div><div class="tog-h"></div></label></div>
+        <div class="trow"><div><div class="tr-l">ISO</div><div class="tr-s">In Search Of — card you want</div></div><label class="tog"><input type="checkbox" id="c-wsh"><div class="tog-t"></div><div class="tog-h"></div></label></div>
+        <div class="trow"><div><div class="tr-l">Duplicate</div><div class="tr-s">Extra copy available</div></div><label class="tog"><input type="checkbox" id="c-dup"><div class="tog-t"></div><div class="tog-h"></div></label></div>
+      </div>
+      <input type="file" id="ph-in" accept="image/*" multiple style="display:none" onchange="handlePh(event)">
+      <div style="display:flex;gap:9px"><button class="btn btn-d hidden" id="c-del" onclick="delCard()">Delete</button><button class="btn btn-p" style="flex:1" onclick="saveCard()">Save ✦</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="m-det">
+  <div class="modal mfull">
+    <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-det')">←</button><div class="mtitle" id="det-t"></div><button class="btn btn-sm btn-g" onclick="editFromDet()">Edit</button></div>
+    <div id="det-gal"></div><div id="det-inf" style="padding:16px"></div>
+  </div>
+</div>
+
+<div class="ovl" id="m-prop">
+  <div class="modal">
+    <div class="mhdl"></div>
+    <div class="mhdr"><div class="mtitle">트레이드 제안</div><button class="btn btn-ic" onclick="closeM('m-prop')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="lbl">Card I'm Offering *</label><div class="sgrid" id="offer-list"></div><div class="fh hidden" id="no-trd-c">Mark a card "For Trade" first.</div></div>
+      <div class="divl"></div>
+      <div class="fg"><label class="lbl">Looking For — Artist *</label><input class="inp" id="w-art" placeholder="Group name"></div>
+      <div class="fg"><label class="lbl">Looking For — Member *</label><input class="inp" id="w-mem" placeholder="Member name"></div>
+      <div class="fg"><label class="lbl">Album (optional)</label><input class="inp" id="w-alb" placeholder="e.g. NOEASY"></div>
+      <div class="fg"><label class="lbl">Message</label><textarea class="ta" id="t-note" placeholder="Any details…"></textarea></div>
+      <button class="btn btn-p" style="width:100%" onclick="postTrade()">Post Offer ✦</button>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="m-fold">
+  <div class="modal mfull" style="display:flex;flex-direction:column">
+    <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-fold')">←</button><div style="flex:1;min-width:0"><div class="mtitle" id="fd-t" style="font-size:14px"></div><div style="font-size:10px;color:var(--mt)" id="fd-sub"></div></div><div id="fd-act"></div></div>
+    <div id="fd-body" style="padding:14px;flex-shrink:0;border-bottom:1px solid var(--bd)"></div>
+    <div style="padding:7px 14px 3px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">💬 Chat</div>
+    <div class="msg-area" id="fd-msgs"></div>
+      <div class="chat-toolbar">
+        <button class="chat-tb-btn" onclick="toggleEmoji('fd')">😊</button>
+        <button class="chat-tb-btn" onclick="toggleGif('fd')">GIF</button>
+        <button class="chat-tb-btn" onclick="$('fd-media-in').click()">📷</button>
+      </div>
+      <div class="emoji-tray" id="fd-emoji"></div>
+      <div class="gif-panel" id="fd-gif">
+        <input class="inp gif-search-inp" id="fd-gif-q" placeholder="Search GIFs…" oninput="searchGif('fd')">
+        <div class="gif-grid" id="fd-gif-grid"></div>
+      </div>
+      <div class="msg-bar"><input class="inp" id="fd-msg" placeholder="Type a message…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"><button class="btn btn-p btn-sm" onclick="sendMsg()">Send</button></div>
+      <input type="file" id="fd-media-in" accept="image/*,video/*" style="display:none" onchange="sendMediaMsg('fd',event)">
+  </div>
+</div>
+
+<div class="ovl" id="m-srch">
+  <div class="modal mfull">
+    <div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-srch')">←</button><input class="inp" id="gs-q" placeholder="Search cards, artists, members, unit…" oninput="doSearch()" autocomplete="off" style="flex:1"></div>
+    <div style="display:flex;gap:6px;padding:8px 14px 0"><div class="chip on" onclick="sf('all',this)">All</div><div class="chip" onclick="sf('solo',this)">Solo</div><div class="chip" onclick="sf('unit',this)">Unit</div></div>
+    <div class="scrl" id="sr-res"></div>
+  </div>
+</div>
+
+<div class="ovl" id="m-ep">
+  <div class="modal"><div class="mhdl"></div>
+    <div class="mhdr"><div class="mtitle">프로필 편집</div><button class="btn btn-ic" onclick="closeM('m-ep')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="lbl">Display Name</label><input class="inp" id="ep-n"></div>
+      <div class="fg"><label class="lbl">Bio</label><textarea class="ta" id="ep-b" placeholder="Tell the community about yourself…"></textarea></div>
+      <div class="fg"><label class="lbl">Recovery Email</label><input class="inp" id="ep-e" type="email" placeholder="your@email.com"></div>
+      <button class="btn btn-p" style="width:100%" onclick="saveProf()">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="m-mem">
+  <div class="modal mfull"><div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-mem')">←</button><div class="mtitle" id="mem-t"></div></div><div id="mem-body"></div></div>
+</div>
+
+<input type="file" id="av-in" accept="image/*" style="display:none" onchange="handleAv(event)">
+<input type="file" id="bg-in" accept="image/*" style="display:none" onchange="handleBg(event)">
+<div class="save-ind" id="si">✓ Saved to cloud</div>
+<div id="toast-el" style="position:fixed;bottom:calc(var(--nh)+14px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--sf2);border:1px solid var(--bdp);border-radius:99px;padding:9px 16px;font-size:12px;font-weight:600;color:var(--tx);z-index:9999;white-space:nowrap;box-shadow:var(--sh);opacity:0;transition:all .3s;pointer-events:none"></div>
+
+</div>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   FIREBASE REALTIME DATABASE
+   Free forever on Spark plan. Real-time. No setup limits.
+   Data structure:
+     /users/{username}  → { displayName, email, createdAt, cards[], profile{} }
+     /trades            → { tradeId: { ...trade } }
+   
+   SETUP: User pastes their Firebase DB URL (one time, 30 sec setup)
+═══════════════════════════════════════════════════════════ */
+const FB_URL = 'https://tincasever1-default-rtdb.firebaseio.com';
+
+async function fbGet(path) {
+  const r = await fetch(FB_URL + path + '.json');
+  if (!r.ok) throw new Error('Read failed ' + r.status);
+  return r.json(); // returns null if empty (not an error)
+}
+
+async function fbSet(path, data) {
+  const r = await fetch(FB_URL + path + '.json', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) { const t = await r.text(); throw new Error('Write failed ' + r.status + ': ' + t.slice(0,80)); }
+  return r.json();
+}
+
+async function fbPatch(path, data) {
+  const r = await fetch(FB_URL + path + '.json', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) { const t = await r.text(); throw new Error('Patch failed ' + r.status + ': ' + t.slice(0,80)); }
+  return r.json();
+}
+
+/* ════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════ */
+const ST = {
+  user: null,   // { username, displayName }
+  users: {},    // all users from Firebase
+  trades: {},   // all trades from Firebase (object keyed by id)
+  vf:'all', tf:'open', sf:'all',
+  editId:null, viewTradeId:null,
+  cat:'solo', pendingPh:[], galIdx:0,
+  selOffer:null, archOpen:false,
+  pollT:null, saveT:null
+};
+
+function myData()   { return ST.users[ST.user?.username] || {}; }
+function myCards()  { return myData().cards || []; }
+function myProf()   { return myData().profile || {}; }
+function tradeList(){ return Object.values(ST.trades || {}); }
+
+/* ════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════ */
+const uid  = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtD = ts => ts ? new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+const fmtT = ts => ts ? new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
+const strs = n  => '★'.repeat(+n) + '☆'.repeat(5 - +n);
+const cNm  = c  => c.category==='unit' ? (c.unitName || [c.unitM1,c.unitM2,c.unitM3].filter(Boolean).join(' & ') || 'Unit') : (c.member || '?');
+const cSb  = c  => c.category==='unit' ? [c.unitM1,c.unitM2,c.unitM3].filter(Boolean).join(', ') : '';
+const $    = id => document.getElementById(id);
+const hidden = (id,v) => $(id).classList.toggle('hidden', v);
+
+let _toastT;
+function toast(msg, dur=2600) {
+  const e=$('toast-el');
+  e.textContent=msg; e.style.opacity=1; e.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(_toastT); _toastT=setTimeout(()=>{e.style.opacity=0;e.style.transform='translateX(-50%) translateY(20px)';},dur);
+}
+function flashSave() { const e=$('si'); e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),1800); }
+function openM(id)  { $(id).classList.add('on'); }
+function closeM(id) { $(id).classList.remove('on'); }
+document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+
+/* ════════════════════════════════════════════════════════
+   SETUP SCREEN
+════════════════════════════════════════════════════════ */
+function showScr(id) {
+  ['scr-splash','scr-login'].forEach(s=>$(s).classList.remove('on'));
+  $('scr-app').classList.remove('on');
+  if (id==='scr-app') $('scr-app').classList.add('on');
+  else if ($(id)) $(id).classList.add('on');
+}
+
+// doSetup removed — Firebase URL is hardcoded
+
+/* ════════════════════════════════════════════════════════
+   LOAD DATA
+════════════════════════════════════════════════════════ */
+async function loadAllData() {
+  const [users, trades] = await Promise.all([
+    fbGet('/users'),
+    fbGet('/trades')
+  ]);
+  ST.users  = users  || {};
+  ST.trades = trades || {};
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════ */
+window.onerror = function(msg, src, line) {
+  if ($('scr-splash')?.classList.contains('on')) {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;bottom:20px;left:10px;right:10px;background:#1a0010;color:#ff8fc2;padding:10px;border-radius:9px;font-size:11px;font-family:monospace;z-index:99999;border:1px solid #ff1f6e44';
+    d.textContent = 'Error: ' + msg + ' (line ' + line + ')';
+    document.body.appendChild(d);
+  }
+  return false;
+};
+
+// Show file:// warning
+if (location.protocol === 'file:') {
+  const fw = document.getElementById('file-warning');
+  if (fw) fw.style.display = 'block';
+}
+
+let _initDone = false;
+function _init() {
+  if (_initDone) return; _initDone = true;
+  // FB_URL is hardcoded — skip setup, load directly
+  setTimeout(async () => {
+    try {
+      await loadAllData();
+      const rem = localStorage.getItem('tc_rem');
+      if (rem) {
+        try {
+          const { username } = JSON.parse(rem);
+          if (ST.users[username]) {
+            ST.user = { username, displayName: ST.users[username].displayName || username };
+            showApp(); return;
+          }
+        } catch(pe) {}
+      }
+      showLogin();
+    } catch(e) { showLogin(); }
+  }, 1200);
+}
+if (document.readyState==='complete'||document.readyState==='interactive') { _init(); }
+else { document.addEventListener('DOMContentLoaded',_init); window.addEventListener('load',_init); }
+
+/* ════════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════════ */
+function showLogin() { showScr('scr-login'); renderSavedUsers(); }
+function switchAuth(t) {
+  $('auth-in').style.display  = t==='in'  ? '' : 'none';
+  $('auth-up').style.display  = t==='up'  ? '' : 'none';
+  $('lt-in').classList.toggle('on', t==='in');
+  $('lt-up').classList.toggle('on', t==='up');
+}
+function showErr(id, msg) { $(id).textContent=msg; $(id).classList.remove('hidden'); }
+
+function renderSavedUsers() {
+  const saved = JSON.parse(localStorage.getItem('tc_saved')||'[]');
+  const valid = saved.filter(u => ST.users[u]);
+  $('su-sec').style.display = valid.length ? '' : 'none';
+  $('su-list').innerHTML = valid.map(u => {
+    const p   = ST.users[u]?.profile || {};
+    const av  = p.avatar ? `<img src="${p.avatar}">` : `<span>${(ST.users[u]?.displayName||u)[0].toUpperCase()}</span>`;
+    return `<div class="su" onclick="quickLogin('${esc(u)}')"><div class="su-av">${av}</div><div class="su-nm">${esc(ST.users[u]?.displayName||u)}</div></div>`;
+  }).join('');
+}
+
+async function doLogin() {
+  const u = $('li-u').value.trim().replace('@','').toLowerCase();
+  if (!u) return;
+  // Re-fetch users in case someone new registered
+  const users = await fbGet('/users');
+  ST.users = users || {};
+  if (!ST.users[u]) { showErr('li-err','Account not found. Check username or create one.'); return; }
+  loginAs(u);
+}
+
+function loginAs(u) {
+  ST.user = { username:u, displayName:ST.users[u].displayName||u };
+  localStorage.setItem('tc_rem', JSON.stringify(ST.user));
+  addSaved(u);
+  showApp();
+}
+function quickLogin(u) { if (!ST.users[u]) return; $('li-u').value=u; loginAs(u); }
+
+let _ucT;
+async function checkU(val) {
+  const c = val.replace(/[^a-z0-9_]/gi,'').toLowerCase();
+  $('reg-u').value = c;
+  const h=$('reg-u-h'), st=$('reg-u-st'), sg=$('reg-sugg');
+  if (c.length < 3) { h.textContent='Min 3 chars'; h.className='fh err'; st.textContent=''; sg.innerHTML=''; return; }
+  st.textContent='…';
+  clearTimeout(_ucT);
+  _ucT = setTimeout(async () => {
+    const users = await fbGet('/users');
+    ST.users = users || ST.users;
+    if (ST.users[c]) {
+      h.textContent='Taken — try:'; h.className='fh err'; st.textContent='✗'; st.style.color='#ff6666';
+      const base = c.replace(/\d+$/,'');
+      const cands = [c+'_',c+'88',base+'_kpop',base+Math.floor(Math.random()*900+100)].filter(s=>!ST.users[s]&&s.length>=3).slice(0,4);
+      sg.innerHTML = cands.map(s=>`<span style="font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--bdp);color:var(--pk2);cursor:pointer;background:var(--pp)" onclick="$('reg-u').value='${s}';checkU('${s}')">${s}</span>`).join('');
+    } else {
+      h.textContent='Available!'; h.className='fh ok'; st.textContent='✓'; st.style.color='var(--mn)'; $('reg-u').className='inp ok'; sg.innerHTML='';
+    }
+  }, 500);
+}
+
+async function doRegister() {
+  const u = $('reg-u').value.trim().toLowerCase();
+  const n = $('reg-n').value.trim();
+  const e = $('reg-e').value.trim();
+  if (!u||u.length<3) { toast('Username must be 3+ chars'); return; }
+  if (!n) { toast('Display name required'); return; }
+  // Final check for duplicate
+  const users = await fbGet('/users');
+  if (users && users[u]) { toast('Username taken — try another'); return; }
+  const userData = { displayName:n, email:e||null, createdAt:Date.now(), cards:[], profile:{bio:'',avatar:null,bgPhoto:null} };
+  await fbSet('/users/'+u, userData);
+  ST.users[u] = userData;
+  ST.user = { username:u, displayName:n };
+  localStorage.setItem('tc_rem', JSON.stringify(ST.user));
+  addSaved(u);
+  showApp();
+  toast('Welcome to 틴케이스! ✦');
+}
+
+function addSaved(u) {
+  const s = JSON.parse(localStorage.getItem('tc_saved')||'[]');
+  if (!s.includes(u)) s.unshift(u);
+  localStorage.setItem('tc_saved', JSON.stringify(s.slice(0,5)));
+}
+
+function doLogout() {
+  if (ST.pollT) clearInterval(ST.pollT);
+  localStorage.removeItem('tc_rem');
+  ST.user = null;
+  showLogin();
+}
+
+/* ════════════════════════════════════════════════════════
+   SHOW APP + LIVE POLLING
+════════════════════════════════════════════════════════ */
+function showApp() {
+  showScr('scr-app');
+  renderVault(); renderColl(); renderTrade(); renderProf();
+  updatePip();
+  // Poll every 15s for new trades, messages, new members
+  if (ST.pollT) clearInterval(ST.pollT);
+  ST.pollT = setInterval(pollData, 15000);
+}
+
+async function pollData() {
+  try {
+    const [users, trades] = await Promise.all([fbGet('/users'), fbGet('/trades')]);
+    ST.users  = users  || ST.users;
+    ST.trades = trades || ST.trades;
+    renderTrade(); updatePip();
+    // Live-update open folder chat
+    if ($('m-fold').classList.contains('on') && ST.viewTradeId) {
+      const t = (ST.trades||{})[ST.viewTradeId];
+      if (t) renderFolderMsgs(t);
+    }
+  } catch {}
+}
+
+async function saveMyCards(cards) {
+  if (!ST.user) return;
+  ST.users[ST.user.username] = ST.users[ST.user.username] || {};
+  ST.users[ST.user.username].cards = cards;
+  try {
+    await fbSet('/users/'+ST.user.username+'/cards', cards);
+    flashSave();
+  } catch(e) { toast('Save failed: ' + e.message); }
+}
+
+async function saveMyProfile(profile) {
+  if (!ST.user) return;
+  ST.users[ST.user.username] = ST.users[ST.user.username] || {};
+  ST.users[ST.user.username].profile = profile;
+  try {
+    await fbSet('/users/'+ST.user.username+'/profile', profile);
+    flashSave();
+  } catch(e) { toast('Save failed: ' + e.message); }
+}
+
+async function saveTrades() {
+  try {
+    await fbSet('/trades', ST.trades);
+    flashSave();
+  } catch(e) { toast('Save failed: ' + e.message); }
+}
+
+/* ════════════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════════════ */
+function goTab(tab, btn) {
+  history.pushState({tc:'tab',tab:tab}, '');
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  $('pn-'+tab).classList.add('on'); btn.classList.add('on');
+  document.querySelector('.fab').style.display = tab==='vault' ? 'flex' : 'none';
+  if(tab==='chat'){setTimeout(()=>{chatTab('group',$('chat-chips').querySelector('.chip.on')||$('chat-chips').querySelector('.chip'));},80);}
+  if (tab==='coll')  renderColl();
+  if (tab==='trade') renderTrade();
+  if (tab==='prof')  { renderProf(); renderProfRecent(); }
+  if (tab==='chat')  { setTimeout(function(){ var fc=document.querySelector('#chat-chips .chip.on')||document.querySelector('#chat-chips .chip'); if(fc)fc.click(); else loadGroupChat(); },80); }
+}
+
+/* ════════════════════════════════════════════════════════
+   AUTOCOMPLETE
+════════════════════════════════════════════════════════ */
+const _acI = {}; let _acIdx = 0;
+function acStore(v) { const k='k'+(++_acIdx); _acI[k]=v; return k; }
+function hideAc(id) { const e=$(id); if(e) e.classList.remove('open'); }
+
+function acRender(dropId, items, inputId, q) {
+  const drop = $(dropId); if (!drop) return;
+  const qL = (q||'').toLowerCase();
+  const filtered = items.filter(i => !q || i.toLowerCase().includes(qL));
+  if (!filtered.length && !q) { drop.classList.remove('open'); return; }
+  let html = filtered.map(item => {
+    const k = acStore(item);
+    return `<div class="aci" data-k="${k}" data-inp="${inputId}" data-drop="${dropId}">${esc(item)}</div>`;
+  }).join('');
+  if (q && !filtered.find(i=>i.toLowerCase()===qL)) {
+    const k = acStore(q);
+    html += `<div class="acnew" data-k="${k}" data-inp="${inputId}" data-drop="${dropId}">+ Add "${esc(q)}"</div>`;
+  }
+  drop.innerHTML = html;
+  drop.classList.toggle('open', html.length > 0);
+}
+
+document.addEventListener('mousedown', function(e) {
+  const el = e.target.closest('[data-k]'); if (!el) return;
+  const v = _acI[el.dataset.k]; if (v===undefined) return;
+  const inp = $(el.dataset.inp); if (inp) inp.value = v;
+  const drop = $(el.dataset.drop); if (drop) drop.classList.remove('open');
+});
+
+function knownArtists() { return [...new Set(myCards().map(c=>c.artist).filter(Boolean))].sort(); }
+function knownMembers(art) {
+  return [...new Set(myCards().flatMap(c => c.category==='unit'
+    ? [c.unitM1,c.unitM2,c.unitM3]
+    : [c.member]
+  ).filter(Boolean))].sort();
+}
+function knownAlbums(art) { return [...new Set(myCards().filter(c=>!art||c.artist===art).map(c=>c.album).filter(Boolean))].sort(); }
+
+function acA()  { acRender('acd-art', knownArtists(),       'c-art', $('c-art').value); }
+function acM(inp,drop) { acRender(drop, knownMembers($('c-art')?.value), inp, $(inp).value); }
+function acAl() { acRender('acd-alb', knownAlbums($('c-art')?.value), 'c-alb', $('c-alb').value); }
+
+/* ════════════════════════════════════════════════════════
+   VAULT
+════════════════════════════════════════════════════════ */
+function renderVault() {
+  let cards = myCards();
+  if (ST.vf==='keep')  cards = cards.filter(c=>c.keep);
+  else if (ST.vf==='solo')  cards = cards.filter(c=>c.category!=='unit');
+  else if (ST.vf==='unit')  cards = cards.filter(c=>c.category==='unit');
+  else if (ST.vf==='trade') cards = cards.filter(c=>c.forTrade);
+  else if (ST.vf==='wish')  cards = cards.filter(c=>c.wishlist);
+  else if (ST.vf==='dupe')  cards = cards.filter(c=>c.dupe);
+  const g=$('vault-grid');
+  if (!cards.length) { g.innerHTML=''; hidden('vault-empty',false); return; }
+  hidden('vault-empty',true);
+  g.innerHTML = cards.map(c=>cardHTML(c)).join('');
+}
+function vf(f,el) { ST.vf=f; $('vc-chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); renderVault(); }
+
+function cardHTML(c) {
+  const isTrd = tradeList().some(t=>t.offeringCardId===c.id&&t.status==='open'&&t.posterUsername===ST.user?.username);
+  const img = c.photos?.[0] ? `<img src="${c.photos[0]}" loading="lazy">` : `<span style="font-size:30px;color:var(--mt)">🃏</span>`;
+  const nm=cNm(c), sb=cSb(c);
+  return `<div class="pcard${isTrd?' trading':''}" onclick="openDet('${c.id}')">
+    <div class="pc-img">${img}
+      ${isTrd?'<span class="bdg b-ing">IN TRADE</span>':c.forTrade?'<span class="bdg b-tr">TRADE</span>':''}
+      ${c.wishlist?'<span class="bdg b-wi">★ WISH</span>':''}
+      ${c.keep?'<span class="bdg b-kp">♡ KEEP</span>':''}
+      ${c.category==='unit'&&!c.keep?'<span class="bdg b-un">UNIT</span>':''}
+    </div>
+    <div class="pc-inf"><div class="pc-art">${esc(c.artist)}</div><div class="pc-nm">${esc(nm)}</div>${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}</div>
+  </div>`;
+}
+
+/* ════════════════════════════════════════════════════════
+   ADD / EDIT CARD
+════════════════════════════════════════════════════════ */
+function openCard(id) {
+  ST.editId = id;
+  const c = id ? myCards().find(x=>x.id===id) : null;
+  ST.pendingPh = c ? [...(c.photos||[])] : [];
+  $('m-card-t').textContent = id ? '카드 편집' : '포토카드 추가';
+  $('c-art').value=c?.artist||''; $('c-alb').value=c?.album||'';
+  $('c-typ').value=c?.type||'official'; $('c-cnd').value=c?.condition||'5';
+  $('c-notes').value=c?.notes||'';
+  $('c-keep').checked=!!c?.keep; $('c-trd').checked=!!c?.forTrade;
+  $('c-wsh').checked=!!c?.wishlist; $('c-dup').checked=!!c?.dupe;
+  const cat = c?.category||'solo'; setCat(cat);
+  $('c-mem').value = c?.member||'';
+  if (cat==='unit') { $('c-uname').value=c.unitName||''; $('c-u1').value=c.unitM1||''; $('c-u2').value=c.unitM2||''; $('c-u3').value=c.unitM3||''; }
+  hidden('c-del', !id);
+  renderStrip(); openM('m-card');
+}
+function setCat(cat) {
+  ST.cat = cat;
+  $('cat-solo').classList.toggle('on',cat==='solo'); $('cat-unit').classList.toggle('on',cat==='unit');
+  $('f-mem').style.display=cat==='solo'?'':'none'; $('f-unit').style.display=cat==='unit'?'':'none';
+}
+function renderStrip() {
+  $('pstrip').innerHTML = ST.pendingPh.map((p,i)=>
+    `<div class="pthumb"><img src="${p}"><div class="pdel" onclick="rmPh(${i})">✕</div></div>`).join('') +
+    `<div class="padd" onclick="$('ph-in').click()"><span style="font-size:20px">+</span><span>ADD</span></div>`;
+}
+function rmPh(i) { ST.pendingPh.splice(i,1); renderStrip(); }
+function handlePh(e) { Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{ST.pendingPh.push(ev.target.result);renderStrip();};r.readAsDataURL(f);}); e.target.value=''; }
+
+async function saveCard() {
+  const art=$('c-art').value.trim(), alb=$('c-alb').value.trim(), cat=ST.cat||'solo';
+  if (!art||!alb) { toast('Fill in Artist & Album ♡'); return; }
+  if (cat==='solo'&&!$('c-mem').value.trim()) { toast('Fill in Member name ♡'); return; }
+  if (cat==='unit'&&(!$('c-u1').value.trim()||!$('c-u2').value.trim())) { toast('Fill in at least 2 unit members ♡'); return; }
+  const card = {
+    id: ST.editId||uid(), artist:art, album:alb,
+    member: cat==='solo'?$('c-mem').value.trim():'',
+    category:cat, unitName:cat==='unit'?$('c-uname').value.trim():'',
+    unitM1:cat==='unit'?$('c-u1').value.trim():'', unitM2:cat==='unit'?$('c-u2').value.trim():'', unitM3:cat==='unit'?$('c-u3').value.trim():'',
+    type:$('c-typ').value, condition:$('c-cnd').value, notes:$('c-notes').value.trim(),
+    keep:$('c-keep').checked, forTrade:$('c-trd').checked, wishlist:$('c-wsh').checked, dupe:$('c-dup').checked,
+    photos:[...ST.pendingPh], owner:ST.user.username,
+    addedAt: ST.editId ? (myCards().find(c=>c.id===ST.editId)?.addedAt||Date.now()) : Date.now()
+  };
+  const cards = ST.editId ? myCards().map(c=>c.id===ST.editId?card:c) : [card,...myCards()];
+  closeM('m-card'); renderVault(); updatePip();
+  await saveMyCards(cards);
+  toast(ST.editId ? 'Card updated ✓' : 'Added to vault ✦');
+}
+
+async function delCard() {
+  if (!confirm('Delete this card?')) return;
+  const cards = myCards().filter(c=>c.id!==ST.editId);
+  closeM('m-card'); renderVault();
+  await saveMyCards(cards);
+  toast('Card removed.');
+}
+function editFromDet() { const id=ST.editId; closeM('m-det'); setTimeout(()=>openCard(id),200); }
+
+/* ════════════════════════════════════════════════════════
+   CARD DETAIL
+════════════════════════════════════════════════════════ */
+function openDet(id) {
+  ST.editId=id; ST.galIdx=0;
+  const c = myCards().find(x=>x.id===id); if (!c) return;
+  const nm=cNm(c), sb=cSb(c);
+  $('det-t').textContent = nm+' — '+c.artist;
+  const gal = $('det-gal');
+  if (c.photos?.length) {
+    gal.innerHTML = `<img id="gal-main" class="gal-main" src="${c.photos[0]}">${c.photos.length>1?`<div class="gal-strip">${c.photos.map((p,i)=>`<div class="gal-t${i===0?' on':''}" onclick="setGal(${i})"><img src="${p}" loading="lazy"></div>`).join('')}</div>`:''}`;
+  } else { gal.innerHTML=`<div style="aspect-ratio:2/3;max-height:240px;background:var(--sf);display:flex;align-items:center;justify-content:center;font-size:52px">🃏</div>`; }
+  const isTrd = tradeList().some(t=>t.offeringCardId===c.id&&t.status==='open'&&t.posterUsername===ST.user.username);
+  const types={official:'Official',pob:'POB',fansign:'Fansign',season:"Season's Greetings",special:'Special Edition',other:'Other'};
+  $('det-inf').innerHTML=`
+    <div class="pip-row">
+      ${isTrd?'<span class="tag tg-p">🔄 In Trade</span>':''}
+      ${c.keep?'<span class="tag tg-pu">♡ Keeping</span>':''}
+      ${c.forTrade&&!isTrd?'<span class="tag tg-p">Trade</span>':''}
+      ${c.wishlist?'<span class="tag tg-g">★ Wish</span>':''}
+      ${c.dupe?'<span class="tag tg-m">× Dupe</span>':''}
+      ${c.category==='unit'?'<span class="tag tg-b">👥 Unit</span>':'<span class="tag tg-gr">👤 Solo</span>'}
+      <span class="tag tg-gr">${types[c.type]||c.type}</span>
+    </div>
+    <div style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:700;margin:10px 0 2px">${esc(nm)}</div>
+    ${sb?`<div style="font-size:12px;color:var(--bl);margin-bottom:3px">${esc(sb)}</div>`:''}
+    <div style="color:var(--pk);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px">${esc(c.artist)}</div>
+    <div style="color:var(--dm);font-size:12px;margin-top:1px">${esc(c.album)}</div>
+    <div class="stars" style="margin-top:8px;font-size:12px">${strs(c.condition)}</div>
+    ${c.notes?`<div class="divl"></div><div style="color:var(--dm);font-size:12px;line-height:1.6">${esc(c.notes)}</div>`:''}
+    <div class="divl"></div>
+    <div style="font-size:10px;color:var(--mt)">Added ${fmtD(c.addedAt)}</div>
+    ${c.forTrade&&!isTrd?`<button class="btn btn-p" style="width:100%;margin-top:12px" onclick="closeM('m-det');openPropose('${c.id}')">Offer for Trade ✦</button>`:''}
+  `;
+  openM('m-det');
+}
+function setGal(i){ST.galIdx=i;const m=$('gal-main');const c=myCards().find(x=>x.id===ST.editId);if(m&&c?.photos)m.src=c.photos[i];document.querySelectorAll('.gal-t').forEach((t,j)=>t.classList.toggle('on',j===i));}
+
+/* ════════════════════════════════════════════════════════
+   COLLECTION
+════════════════════════════════════════════════════════ */
+function renderColl() {
+  const cards=myCards(), keeps=cards.filter(c=>c.keep);
+  const byA={}; keeps.forEach(c=>{byA[c.artist]=(byA[c.artist]||0)+1;});
+  const topA=Object.entries(byA).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const doneT=tradeList().filter(t=>t.posterUsername===ST.user?.username&&t.status==='completed').length;
+  $('coll-body').innerHTML=`
+    <div style="padding:13px 13px 0">
+      <div class="cbox">
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
+          <div><div class="cn">${keeps.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">Keeping</div></div>
+          <div style="flex:1">
+            ${[['Total in Vault',cards.length],['For Trade',cards.filter(c=>c.forTrade).length],['ISO',cards.filter(c=>c.wishlist).length],['Trades Done',doneT]].map(([l,v])=>`<div class="crow"><span style="color:var(--dm)">${l}</span><span style="font-weight:700">${v}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    ${keeps.length?`<div class="st" style="padding:0 13px;margin-bottom:8px">Cards I'm Keeping</div><div class="grid" style="padding:0 13px">${keeps.map(c=>cardHTML(c)).join('')}</div>`:''}
+    ${topA.length?`<div class="st" style="padding:13px 13px 8px">By Artist</div><div class="cbox" style="margin:0 13px 13px">${topA.map(([a,n])=>`<div class="crow"><span style="font-size:12px;color:var(--tx)">${esc(a)}</span><div style="display:flex;align-items:center;gap:7px"><div class="prog"><div class="prog-f" style="width:${Math.round(n/keeps.length*100)}%"></div></div><span style="font-weight:700;min-width:16px;text-align:right">${n}</span></div></div>`).join('')}</div>`:''}
+    ${!keeps.length?`<div class="empty"><div class="ei">📚</div><h3>No keeps yet</h3><p>Toggle "Keeping" when adding a card!</p></div>`:''}
+  `;
+}
+
+/* ════════════════════════════════════════════════════════
+   TRADES
+════════════════════════════════════════════════════════ */
+function renderTrade() {
+  const q=($('trade-q')?.value||'').toLowerCase();
+  const isMem=ST.tf==='members';
+  $('trade-list').style.display=isMem?'none':''; $('member-list').style.display=isMem?'':'none';
+  if (isMem) { renderMembers(q); return; }
+  let open=tradeList().filter(t=>t.status==='open');
+  let done=tradeList().filter(t=>t.status!=='open');
+  if (ST.tf==='mine') open=open.filter(t=>t.posterUsername===ST.user?.username);
+  if (q) {
+    const m=t=>[t.wantArtist,t.wantMember,t.wantAlbum,t.note,t.posterUsername,t.posterDisplayName].some(s=>(s||'').toLowerCase().includes(q));
+    open=open.filter(m); done=done.filter(m);
+  }
+  const tl=$('trade-list'),as=$('arch-sec');
+  if (!open.length&&!done.length){tl.innerHTML='';hidden('trade-empty',false);as.style.display='none';return;}
+  hidden('trade-empty',true);
+  tl.innerHTML=open.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t)).join('');
+  if(done.length){as.style.display='';$('arch-cnt').textContent=done.length;$('arch-body').innerHTML=done.sort((a,b)=>b.createdAt-a.createdAt).map(t=>folderHTML(t,true)).join('');}
+  else as.style.display='none';
+}
+function tf(f,el){ST.tf=f;$('tc-chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTrade();}
+function toggleArch(){ST.archOpen=!ST.archOpen;$('arch-body').style.display=ST.archOpen?'':'none';$('arch-arr').style.transform=ST.archOpen?'rotate(180deg)':'';}
+function updatePip(){const n=tradeList().filter(t=>t.status==='open').length;const p=$('trade-pip');n>0?(p.textContent=n,p.classList.remove('hidden')):p.classList.add('hidden');}
+
+function folderHTML(t, archived=false) {
+  const isMe=t.posterUsername===ST.user?.username;
+  const msgs=Object.values(t.messages||{}); const lm=msgs[msgs.length-1];
+  const prev=lm?`${lm.username===ST.user?.username?'You':lm.username}: ${lm.text}`:'No messages yet';
+  const stag=t.status==='completed'?'<span class="tag tg-m">✓ Done</span>':'<span class="tag tg-p">🔄 Open</span>';
+  const avH=t.posterAvatar?`<img src="${t.posterAvatar}">`:(t.posterDisplayName||'?')[0].toUpperCase();
+  return `<div class="fcard" onclick="openFolder('${t.id}')" style="${archived?'opacity:.55':''}">
+    <div class="fcard-h">
+      <div class="fav">${avH}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${esc(isMe?'My Offer':t.posterDisplayName)} <span style="color:var(--mt);font-size:10px;font-weight:400">@${esc(t.posterUsername)}</span></div>
+        <div style="font-size:10px;color:var(--mt)">${fmtD(t.createdAt)} · Wants: ${esc(t.wantMember)} · ${esc(t.wantArtist)}</div>
+      </div>${stag}
+    </div>
+    <div class="fcard-msg">${esc(prev)}</div>
+  </div>`;
+}
+
+function renderMembers(q='') {
+  const ml=$('member-list');
+  let list=Object.entries(ST.users).filter(([u])=>u!==ST.user?.username);
+  if(q)list=list.filter(([u,d])=>u.includes(q)||(d.displayName||'').toLowerCase().includes(q));
+  if(!list.length){ml.innerHTML=`<div class="empty"><div class="ei">👥</div><h3>No other members yet</h3><p>Invite friends to join!</p></div>`;return;}
+  ml.innerHTML=list.map(([u,d])=>{
+    const tc=tradeList().filter(t=>t.posterUsername===u&&t.status==='open').length;
+    const avH=d.profile?.avatar?`<img src="${d.profile.avatar}">`:(d.displayName||u)[0].toUpperCase();
+    return `<div class="fcard" onclick="openMem('${u}')"><div class="fcard-h"><div class="fav">${avH}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div><div style="font-size:10px;color:var(--mt);margin-top:2px">${(d.cards||[]).length} cards · ${tc} active trade${tc!==1?'s':''}</div></div></div></div>`;
+  }).join('');
+}
+
+/* PROPOSE */
+function openPropose(preselect) {
+  const tradable=myCards().filter(c=>c.forTrade);
+  const list=$('offer-list'),none=$('no-trd-c');
+  if(!tradable.length){list.innerHTML='';none.classList.remove('hidden');}
+  else{
+    none.classList.add('hidden');
+    list.innerHTML=tradable.map(c=>{
+      const img=c.photos?.[0]?`<img src="${c.photos[0]}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block">`:'<div class="sci">🃏</div>';
+      return `<div class="sc${preselect===c.id?' on':''}" onclick="pickOffer(this,'${c.id}')" data-id="${c.id}"><div class="sci" style="overflow:hidden">${img}</div><div class="scn">${esc(cNm(c))}</div></div>`;
+    }).join('');
+    ST.selOffer=preselect||null;
+  }
+  ['w-art','w-mem','w-alb','t-note'].forEach(id=>$(id).value='');
+  openM('m-prop');
+}
+function pickOffer(el,id){document.querySelectorAll('.sc').forEach(c=>c.classList.remove('on'));el.classList.add('on');ST.selOffer=id;}
+
+async function postTrade() {
+  const sel=document.querySelector('.sc.on');
+  const offId=sel?.dataset?.id||ST.selOffer;
+  if(!offId){toast('Pick a card to offer!');return;}
+  const wa=$('w-art').value.trim(),wm=$('w-mem').value.trim();
+  if(!wa||!wm){toast("Fill in what you're looking for!");return;}
+  const id=uid();
+  const t={id,offeringCardId:offId,posterUsername:ST.user.username,posterDisplayName:ST.user.displayName,
+    posterAvatar:myProf().avatar||null,wantArtist:wa,wantMember:wm,wantAlbum:$('w-alb').value.trim(),
+    note:$('t-note').value.trim(),status:'open',messages:{},createdAt:Date.now()};
+  ST.trades[id]=t;
+  closeM('m-prop');renderTrade();updatePip();
+  await fbSet('/trades/'+id, t);
+  toast('Trade posted! ✦');
+}
+
+/* TRADE FOLDER */
+function openFolder(id) {
+  const t=(ST.trades||{})[id]; if(!t)return;
+  ST.viewTradeId=id;
+  const isMe=t.posterUsername===ST.user?.username;
+  $('fd-t').textContent=isMe?'My Trade Offer':`Trade with ${t.posterDisplayName}`;
+  $('fd-sub').textContent=`@${t.posterUsername} · ${fmtD(t.createdAt)}`;
+  $('fd-act').innerHTML=isMe&&t.status==='open'?`<button class="btn btn-sm btn-g" onclick="markDone('${id}')">Mark Done ✓</button>`
+    :!isMe&&t.status==='open'?`<button class="btn btn-sm btn-o" onclick="sendInterest('${id}')">Interested ♡</button>`
+    :`<span class="tag tg-m">✓ Done</span>`;
+  $('fd-body').innerHTML=`<div style="background:var(--sf);border-radius:var(--rs);padding:12px">
+    <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Offering</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:8px">Card from @${esc(t.posterUsername)}</div>
+    <div style="font-size:9px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Looking for</div>
+    <div style="font-size:15px;font-weight:700">${esc(t.wantMember)}</div>
+    <div style="font-size:12px;color:var(--dm)">${esc(t.wantArtist)}${t.wantAlbum?' · '+esc(t.wantAlbum):''}</div>
+    ${t.note?`<div style="margin-top:8px;font-size:12px;color:var(--dm);font-style:italic">"${esc(t.note)}"</div>`:''}
+  </div>`;
+  renderFolderMsgs(t);
+  openM('m-fold');
+  setTimeout(()=>{const m=$('fd-msgs');if(m)m.scrollTop=m.scrollHeight;},120);
+}
+
+function renderFolderMsgs(t) {
+  const el=$('fd-msgs'); if(!el)return;
+  const msgs=Object.values(t.messages||{}).sort((a,b)=>a.at-b.at);
+  if(!msgs.length){el.innerHTML=`<div style="text-align:center;color:var(--mt);font-size:12px;padding:20px">No messages yet 💬</div>`;return;}
+  el.innerHTML=msgs.map(m=>{
+    const me=m.username===ST.user?.username;
+    return `<div class="mw ${me?'me':'them'}">${!me?`<div class="msnd">@${esc(m.username)}</div>`:''}<div class="bbl ${me?'me':'them'}">${esc(m.text)}</div><div class="mt-time">${fmtT(m.at)}</div></div>`;
+  }).join('');
+  setTimeout(()=>el.scrollTop=el.scrollHeight,50);
+}
+
+async function sendMsg() {
+  const inp=$('fd-msg'); const text=inp.value.trim();
+  if(!text||!ST.viewTradeId)return;
+  const t=(ST.trades||{})[ST.viewTradeId]; if(!t)return;
+  const msgId=uid();
+  const msg={username:ST.user.username,displayName:ST.user.displayName,text,at:Date.now()};
+  if(!t.messages)t.messages={};
+  t.messages[msgId]=msg;
+  inp.value=''; renderFolderMsgs(t);
+  await fbSet('/trades/'+ST.viewTradeId+'/messages/'+msgId, msg);
+}
+
+async function markDone(id) {
+  const t=(ST.trades||{})[id]; if(!t)return;
+  t.status='completed'; t.completedAt=Date.now();
+  $('fd-act').innerHTML=`<span class="tag tg-m">✓ Done</span>`;
+  renderTrade(); updatePip();
+  await fbPatch('/trades/'+id, {status:'completed',completedAt:t.completedAt});
+  toast('Trade completed! 🎉');
+}
+
+async function sendInterest(id) {
+  const t=(ST.trades||{})[id]; if(!t)return;
+  const msgId=uid();
+  const msg={username:ST.user.username,displayName:ST.user.displayName,text:`Hey @${t.posterUsername}! I'm interested in your trade 🌸`,at:Date.now()};
+  if(!t.messages)t.messages={};
+  t.messages[msgId]=msg;
+  renderFolderMsgs(t);
+  $('fd-act').innerHTML=`<span class="tag tg-m">✓ Sent</span>`;
+  await fbSet('/trades/'+id+'/messages/'+msgId, msg);
+  toast('Interest sent! ♡');
+}
+
+/* MEMBER PROFILE */
+// openMem: see async version below
+
+/* SEARCH */
+function openSearch(){openM('m-srch');setTimeout(()=>$('gs-q').focus(),100);}
+function sf(f,el){ST.sf=f;document.querySelectorAll('#m-srch .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');doSearch();}
+function doSearch(){
+  const q=$('gs-q').value.trim().toLowerCase(); const el=$('sr-res');
+  if(!q){el.innerHTML=`<div class="empty"><div class="ei">🔍</div><h3>Search your vault</h3><p>Find by artist, member, album, unit, or notes</p></div>`;return;}
+  let res=myCards().filter(c=>[c.artist,c.member,c.album,c.type,c.notes,c.unitName,c.unitM1,c.unitM2,c.unitM3].some(s=>(s||'').toLowerCase().includes(q)));
+  if(ST.sf==='solo')res=res.filter(c=>c.category!=='unit');
+  else if(ST.sf==='unit')res=res.filter(c=>c.category==='unit');
+  el.innerHTML=res.length?`<div style="font-size:12px;color:var(--mt);margin-bottom:10px">${res.length} result${res.length!==1?'s':''}</div><div class="grid">${res.map(c=>cardHTML(c)).join('')}</div>`:`<div class="empty"><div class="ei">🔍</div><h3>No results</h3><p>No cards match "${esc(q)}"</p></div>`;
+}
+
+/* PROFILE */
+function renderProf(){
+  const p=myProf(); const u=ST.user; if(!u)return;
+  const cover=$('pn-prof').querySelector('.pcover');
+  let ci=cover.querySelector('img.cover-photo');
+  if(p.bgPhoto){if(!ci){ci=document.createElement('img');ci.className='cover-photo';cover.insertBefore(ci,cover.firstChild);}ci.src=p.bgPhoto;}
+  else if(ci)ci.remove();
+  const av=$('pav'); av.innerHTML=p.avatar?`<img src="${p.avatar}">`:`<span>${(u.displayName||u.username||'?')[0].toUpperCase()}</span>`;
+  $('p-nm').textContent=u.displayName; $('p-hndl').textContent='@'+u.username;
+  const bio=$('p-bio'); if(p.bio&&p.bio.trim()){bio.textContent=p.bio;bio.classList.remove('hidden');}else bio.classList.add('hidden');
+  const cards=myCards();
+  $('ps-c').textContent=cards.length;
+  $('ps-t').textContent=tradeList().filter(t=>t.posterUsername===u.username&&t.status==='completed').length;
+  $('ps-k').textContent=cards.filter(c=>c.keep).length;
+}
+function renderProfRecent(){const g=$('p-rcnt');const r=myCards().slice(0,6);g.innerHTML=r.length?r.map(c=>cardHTML(c)).join(''):`<div style="color:var(--mt);font-size:13px">No cards yet</div>`;}
+
+function openEditProf(){$('ep-n').value=ST.user?.displayName||'';$('ep-b').value=myProf().bio||'';$('ep-e').value=myProf().email||'';openM('m-ep');}
+
+async function saveProf(){
+  const n=$('ep-n').value.trim(); if(!n){toast("Name can't be empty!");return;}
+  ST.user.displayName=n;
+  const newProfile={...myProf(),bio:$('ep-b').value.trim(),email:$('ep-e').value.trim()||null};
+  ST.users[ST.user.username].displayName=n;
+  localStorage.setItem('tc_rem',JSON.stringify(ST.user));
+  closeM('m-ep'); renderProf();
+  await Promise.all([
+    fbPatch('/users/'+ST.user.username,{displayName:n}),
+    saveMyProfile(newProfile)
+  ]);
+  toast('Profile saved ✓');
+}
+
+function handleAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),avatar:ev.target.result};await saveMyProfile(newP);// update avatar on trades too
+tradeList().forEach(t=>{if(t.posterUsername===ST.user.username){t.posterAvatar=ev.target.result;fbPatch('/trades/'+t.id,{posterAvatar:ev.target.result});}});renderProf();toast('Profile picture updated ✓');};r.readAsDataURL(f);e.target.value='';}
+function handleBg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),bgPhoto:ev.target.result};await saveMyProfile(newP);renderProf();toast('Cover photo updated ✓');};r.readAsDataURL(f);e.target.value='';}
+
+
+
+// ══════════════════════════════════════════════════════
+//  BACK BUTTON — stay in app
+// ══════════════════════════════════════════════════════
+window.addEventListener('popstate', function() {
+  const modal = document.querySelector('.ovl.on');
+  if (modal) { modal.classList.remove('on'); history.pushState({tc:'app'},''); return; }
+  if (!$('pn-vault')?.classList.contains('on')) {
+    const vBtn = $('nb-vault');
+    if (vBtn) goTab('vault', vBtn);
+  }
+  history.pushState({tc:'app'}, '');
+});
+
+// Push state on openM so back closes modals
+
+// ══════════════════════════════════════════════════════
+//  SOCIAL: FRIENDS, DMs, GROUP CHAT
+//  Firebase paths:
+//    /friends/{user}/{otherUser}  = true
+//    /friendRequests/{toUser}/{fromUser} = true
+//    /dms/{convId}/messages/{msgId}
+//    /groupChat/messages/{msgId}
+// ══════════════════════════════════════════════════════
+
+let ST_dmPartner = '';   // username of current DM conversation
+let ST_chatTab   = 'group';
+const EMOJIS = ['😊','😂','🥰','😍','🤩','😎','🥳','😭','😢','😅','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💗','💓','💞','💕','✨','🌸','🌺','🌹','🌷','🌻','⭐','🎉','🎊','🎁','🎵','🎶','🍀','🦋','🌈','🔥','💫','👑','💎','🃏','📸','🎴','🀄','🎭','👀','💅','🙌','👏','🤝','🫶','💪','🤞','✌️','🤙','👍','❤️‍🔥','💝','🫰'];
+
+// ── CHAT TAB SWITCHER ──
+function chatTab(tab, el) {
+  ST_chatTab = tab;
+  document.querySelectorAll('#chat-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  $('chat-group').style.display   = tab==='group'   ? 'flex' : 'none';
+  $('chat-dms').style.display     = tab==='dms'     ? 'block' : 'none';
+  $('chat-friends').style.display = tab==='friends' ? 'block' : 'none';
+  if (tab==='group')   loadGroupChat();
+  if (tab==='dms')     loadDMList();
+  if (tab==='friends') loadFriendsList();
+}
+
+// ── GROUP CHAT ──
+async function loadGroupChat() {
+  const msgs = await fbGet('/groupChat/messages');
+  renderChatMsgs('gc-msgs', msgs, false);
+}
+
+async function sendGroupMsg() {
+  const inp = $('gc-msg'); const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  const msgId = uid();
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, text, at: Date.now(), type:'text' };
+  await fbSet('/groupChat/messages/'+msgId, msg);
+  loadGroupChat();
+}
+
+// ── FRIEND REQUESTS ──
+async function sendFriendReq(toUser) {
+  await fbSet('/friendRequests/'+toUser+'/'+ST.user.username, { from: ST.user.username, at: Date.now() });
+  toast('Friend request sent! ♡');
+  openMem(toUser);
+}
+
+async function acceptFriend(fromUser) {
+  const me = ST.user.username;
+  await Promise.all([
+    fbSet('/friends/'+me+'/'+fromUser, true),
+    fbSet('/friends/'+fromUser+'/'+me, true),
+    fbSet('/friendRequests/'+me+'/'+fromUser, null),
+  ]);
+  toast('You are now friends! 💖');
+  openMem(fromUser);
+}
+
+async function getFriends() {
+  const data = await fbGet('/friends/'+ST.user.username);
+  return data ? Object.keys(data) : [];
+}
+
+async function getPendingRequests() {
+  const data = await fbGet('/friendRequests/'+ST.user.username);
+  return data ? Object.keys(data) : [];
+}
+
+async function getSentRequests() {
+  // Check which users have a request from me
+  return [];
+}
+
+// ── DMs ──
+function dmConvId(a, b) { return [a,b].sort().join('_'); }
+
+async function openDMWith(username) {
+  closeM('m-mem');
+  ST_dmPartner = username;
+  const d = ST.users[username] || {};
+  $('dm-t').textContent = d.displayName || username;
+  $('dm-msgs').innerHTML = '<div style="text-align:center;color:var(--mt);font-size:12px;padding:16px">Loading…</div>';
+  openM('m-dm');
+  history.pushState({tc:'modal',id:'m-dm'}, '');
+  const convId = dmConvId(ST.user.username, username);
+  const msgs = await fbGet('/dms/'+convId+'/messages');
+  renderChatMsgs('dm-msgs', msgs, true);
+}
+
+async function sendDM() {
+  const inp = $('dm-msg'); const text = inp.value.trim();
+  if (!text || !ST_dmPartner) return;
+  inp.value = '';
+  const convId = dmConvId(ST.user.username, ST_dmPartner);
+  const msgId = uid();
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, text, at: Date.now(), type:'text' };
+  await fbSet('/dms/'+convId+'/messages/'+msgId, msg);
+  const msgs = await fbGet('/dms/'+convId+'/messages');
+  renderChatMsgs('dm-msgs', msgs, true);
+}
+
+// ── DM LIST ──
+async function loadDMList() {
+  const friends = await getFriends();
+  const el = $('chat-dms');
+  if (!friends.length) { el.innerHTML = '<div class="empty"><div class="ei">💬</div><h3>No friends yet</h3><p>Add friends from the Members tab to start chatting!</p></div>'; return; }
+  el.innerHTML = friends.map(u => {
+    const d = ST.users[u] || {};
+    const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+    return `<div class="fcard" onclick="openDMWith('${esc(u)}')">
+      <div class="fcard-h"><div class="fav">${av}</div>
+      <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div>
+      <div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+      <div style="color:var(--pk2);font-size:18px">💬</div></div></div>`;
+  }).join('');
+}
+
+// ── FRIENDS LIST ──
+async function loadFriendsList() {
+  const friends = await getFriends();
+  const pending = await getPendingRequests();
+  const el = $('chat-friends');
+  let html = '';
+  if (pending.length) {
+    html += `<div class="st" style="margin-bottom:8px">Friend Requests <span style="color:var(--pk)">(${pending.length})</span></div>`;
+    html += pending.map(u => {
+      const d = ST.users[u] || {};
+      const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+      return `<div class="fcard"><div class="fcard-h"><div class="fav">${av}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+        <button class="btn btn-sm" style="background:var(--mn);color:#000;font-weight:700" onclick="acceptFriend('${esc(u)}')">Accept</button></div></div>`;
+    }).join('');
+    html += '<div class="divl"></div>';
+  }
+  if (friends.length) {
+    html += `<div class="st" style="margin-bottom:8px">Friends (${friends.length})</div>`;
+    html += friends.map(u => {
+      const d = ST.users[u] || {};
+      const av = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+      return `<div class="fcard" onclick="openDMWith('${esc(u)}')"><div class="fcard-h"><div class="fav">${av}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div></div>
+        <div style="color:var(--pk2);font-size:18px">💬</div></div></div>`;
+    }).join('');
+  }
+  if (!friends.length && !pending.length) html = '<div class="empty"><div class="ei">👥</div><h3>No friends yet</h3><p>Find members in the Trade tab and add them as friends!</p></div>';
+  el.innerHTML = html;
+}
+
+// ── RENDER CHAT MESSAGES ──
+function renderChatMsgs(elId, msgs, isPrivate) {
+  const el = $(elId); if (!el) return;
+  if (!msgs) { el.innerHTML = '<div style="text-align:center;color:var(--mt);font-size:12px;padding:20px">No messages yet. Say hi! 👋</div>'; return; }
+  const sorted = Object.values(msgs).sort((a,b)=>a.at-b.at);
+  el.innerHTML = sorted.map(m => {
+    const me = m.username === ST.user?.username;
+    let bubble = '';
+    if (m.type === 'image') {
+      bubble = `<img src="${m.url}" class="msg-media" onclick="this.requestFullscreen?.()">`;
+    } else if (m.type === 'video') {
+      bubble = `<video src="${m.url}" class="msg-media" controls playsinline></video>`;
+    } else if (m.type === 'gif') {
+      bubble = `<img src="${m.url}" class="msg-gif">`;
+    } else {
+      bubble = `<div class="bbl ${me?'me':'them'}">${esc(m.text)}</div>`;
+    }
+    const avH = m.avatar ? `<img src="${m.avatar}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0">` : `<div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${(m.displayName||m.username||'?')[0].toUpperCase()}</div>`;
+    return `<div class="mw ${me?'me':'them'}">
+      ${!me?`<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">${avH}<div class="msnd">@${esc(m.username)}</div></div>`:''}
+      ${bubble}
+      <div class="mt-time">${fmtT(m.at)}</div>
+    </div>`;
+  }).join('');
+  setTimeout(() => el.scrollTop = el.scrollHeight, 50);
+}
+
+// ── EMOJI PICKER ──
+function buildEmojiTray(id) {
+  const el = $(id+'-emoji'); if (!el) return;
+  if (!el.innerHTML) el.innerHTML = EMOJIS.map(e=>`<span onclick="insertEmoji('${id}','${e}')">${e}</span>`).join('');
+}
+function toggleEmoji(id) {
+  buildEmojiTray(id);
+  const el = $(id+'-emoji'); if (!el) return;
+  el.classList.toggle('on');
+  const gif = $(id+'-gif'); if (gif) gif.classList.add('hidden');
+}
+function insertEmoji(id, emoji) {
+  const inp = $(id===('gc')?'gc-msg':id===('dm')?'dm-msg':'fd-msg');
+  if (!inp) return;
+  const pos = inp.selectionStart || inp.value.length;
+  inp.value = inp.value.slice(0,pos) + emoji + inp.value.slice(pos);
+  inp.focus();
+  $(id+'-emoji')?.classList.remove('on');
+}
+
+// ── GIF SEARCH (Tenor) ──
+let _gifT = {};
+function toggleGif(id) {
+  const el = $(id+'-gif'); if (!el) return;
+  el.classList.toggle('hidden');
+  const em = $(id+'-emoji'); if (em) em.classList.remove('on');
+  if (!el.classList.contains('hidden')) searchGif(id);
+}
+async function searchGif(id) {
+  const q = ($(id+'-gif-q')?.value||'').trim() || 'kpop';
+  clearTimeout(_gifT[id]);
+  _gifT[id] = setTimeout(async () => {
+    const grid = $(id+'-gif-grid'); if (!grid) return;
+    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Loading…</div>';
+    try {
+      const r = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyAyimkuYQYF_FXVALexPzpAGBQy_eMPeT&limit=12&media_filter=gif`);
+      const data = await r.json();
+      const results = data.results || [];
+      if (!results.length) { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">No GIFs found</div>'; return; }
+      grid.innerHTML = results.map(g => {
+        const url = g.media_formats?.tinygif?.url || g.media_formats?.gif?.url || '';
+        return `<img src="${url}" loading="lazy" onclick="sendGif('${id}','${url}')">`;
+      }).join('');
+    } catch { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Could not load GIFs</div>'; }
+  }, 400);
+}
+async function sendGif(id, url) {
+  $(id+'-gif')?.classList.add('hidden');
+  const msg = { username: ST.user.username, displayName: ST.user.displayName,
+    avatar: myProf().avatar||null, url, at: Date.now(), type:'gif' };
+  if (id === 'gc') {
+    await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
+  } else if (id === 'dm' && ST_dmPartner) {
+    const convId = dmConvId(ST.user.username, ST_dmPartner);
+    await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
+    const msgs = await fbGet('/dms/'+convId+'/messages');
+    renderChatMsgs('dm-msgs', msgs, true);
+  } else if (id === 'fd' && ST.viewTradeId) {
+    await fbSet('/trades/'+ST.viewTradeId+'/messages/'+uid(), msg);
+    const t = (ST.trades||{})[ST.viewTradeId];
+    if (t) { t.messages = t.messages||{}; t.messages[uid()] = msg; renderFolderMsgs(t); }
+  }
+}
+
+// ── PHOTO / VIDEO UPLOAD ──
+function triggerMedia(id) {
+  const inp = $(id+'-media-in'); if (inp) { inp.click(); return; }
+  // trade folder has fd-media-in
+  const fd = $('fd-media-in'); if (fd) fd.click();
+}
+
+async function sendMediaMsg(id, e) {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const isVideo = file.type.startsWith('video/');
+  // Read as dataURL (base64) - fine for small files
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const url = ev.target.result;
+    const msg = { username: ST.user.username, displayName: ST.user.displayName,
+      avatar: myProf().avatar||null, url, at: Date.now(), type: isVideo?'video':'image' };
+    if (id === 'gc') {
+      await fbSet('/groupChat/messages/'+uid(), msg); loadGroupChat();
+    } else if (id === 'dm' && ST_dmPartner) {
+      const convId = dmConvId(ST.user.username, ST_dmPartner);
+      await fbSet('/dms/'+convId+'/messages/'+uid(), msg);
+      const msgs = await fbGet('/dms/'+convId+'/messages');
+      renderChatMsgs('dm-msgs', msgs, true);
+    } else if (id === 'fd' && ST.viewTradeId) {
+      await fbSet('/trades/'+ST.viewTradeId+'/messages/'+uid(), msg);
+      const t = (ST.trades||{})[ST.viewTradeId];
+      if (t) { if(!t.messages)t.messages={}; renderFolderMsgs(t); }
+      loadGroupChat();
+    }
+    toast('Media sent! 📸');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── MEMBER PROFILE: friend req + DM button ──
+async function openMem(u) {
+  const d = ST.users[u]; if (!d) return;
+  $('mem-t').textContent = d.displayName || u;
+  const trades = tradeList().filter(t=>t.posterUsername===u&&t.status==='open');
+  const doneT = tradeList().filter(t=>t.posterUsername===u&&t.status==='completed').length;
+  const avH = d.profile?.avatar ? `<img src="${d.profile.avatar}">` : (d.displayName||u)[0].toUpperCase();
+  // Check friendship status
+  const [myFriendsData, theirReqsData] = await Promise.all([
+    fbGet('/friends/'+ST.user.username),
+    fbGet('/friendRequests/'+ST.user.username)
+  ]);
+  const myFriends = myFriendsData || {};
+  const myIncoming = theirReqsData || {};
+  const theirSent = (await fbGet('/friendRequests/'+u)) || {};
+  let frBtn = '';
+  if (myFriends[u]) {
+    frBtn = `<button class="friend-req-btn fr-friends" onclick="openDMWith('${u}');closeM('m-mem')">💬 Message</button>`;
+  } else if (theirSent[ST.user.username]) {
+    frBtn = `<button class="friend-req-btn fr-accept" onclick="acceptFriend('${u}')">💖 Accept Request</button>`;
+  } else if (myIncoming[u]) {
+    frBtn = `<button class="friend-req-btn fr-pending">✓ Request Sent</button>`;
+  } else {
+    frBtn = `<button class="friend-req-btn fr-send" onclick="sendFriendReq('${u}')">+ Add Friend</button>`;
+  }
+  $('mem-body').innerHTML = `
+    <div style="background:linear-gradient(135deg,#1a0a2e,#2a0a1e);height:100px;display:flex;align-items:center;justify-content:center;position:relative">
+      ${d.profile?.bgPhoto?`<img src="${d.profile.bgPhoto}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5">`:''}
+      <div style="width:70px;height:70px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;border:3px solid var(--dk);position:relative;z-index:1">${avH}</div>
+    </div>
+    <div style="text-align:center;padding:10px 16px 0">
+      <div style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:900">${esc(d.displayName||u)}</div>
+      <div style="font-size:11px;color:var(--pk);margin-top:2px">@${esc(u)}</div>
+      ${d.profile?.bio?`<div style="font-size:12px;color:var(--dm);margin-top:6px;font-style:italic">${esc(d.profile.bio)}</div>`:''}
+      <div style="display:flex;justify-content:center;gap:22px;padding:12px 0">
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${(d.cards||[]).length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Cards</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${doneT}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Trades</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--pk);font-family:'Cormorant Garamond',serif">${trades.length}</div><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:.8px">Active</div></div>
+      </div>
+      <div style="padding:0 0 12px">${frBtn}</div>
+    </div>
+    <div style="padding:0 15px 20px">
+      <div class="divl"></div><div class="st">Active Trade Offers</div>
+      ${trades.length?trades.map(t=>folderHTML(t)).join(''):`<div class="empty"><div class="ei">🔄</div><h3>No active trades</h3></div>`}
+    </div>`;
+  openM('m-mem');
+}
+
+// ── EXTEND TRADE FOLDER WITH EMOJI/GIF/MEDIA ──
+// Patch openFolder to add chat toolbar after fd-msgs
+const _origOpenFolder = openFolder;
+function openFolder(id) {
+  _origOpenFolder(id);
+  // Add emoji/gif/media toolbar after msg area (already in HTML)
+}
+
+// Poll group chat when on chat tab
+const _origPollData = pollData;
+async function pollData() {
+  await _origPollData();
+  if ($('pn-chat')?.classList.contains('on') && ST_chatTab === 'group') {
+    loadGroupChat();
+  }
+}
+
+// Update goTab to handle chat tab
+// chat tab handled in main goTab
+
+</script>
+</body>
+</html>
