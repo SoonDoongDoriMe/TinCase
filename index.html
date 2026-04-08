@@ -388,6 +388,7 @@ video.msg-media{max-width:220px;}
     <div class="chips" id="tc-chips" style="padding:8px 13px 0;margin-bottom:0">
       <div class="chip on" onclick="tf('trade',this)">For Trade</div>
       <div class="chip" onclick="tf('iso',this)">ISO</div>
+      <div class="chip" onclick="tf('favs',this)">❤️ Favourites</div>
       <div class="chip" onclick="tf('offers',this)">My Offers</div>
       <div class="chip" onclick="tf('members',this)">Members</div>
     </div>
@@ -600,6 +601,19 @@ video.msg-media{max-width:220px;}
   <div class="modal mfull"><div class="mhdr"><button class="btn btn-ic" onclick="closeM('m-mem')">←</button><div class="mtitle" id="mem-t"></div></div><div id="mem-body"></div></div>
 </div>
 
+<!-- COMMUNITY CARD DETAIL MODAL -->
+<div class="ovl" id="m-cdet">
+  <div class="modal mfull">
+    <div class="mhdr">
+      <button class="btn btn-ic" onclick="closeM('m-cdet')">←</button>
+      <div class="mtitle" id="cdet-t"></div>
+      <button class="btn btn-ic" id="cdet-fav-btn" onclick="toggleFavCard()" style="font-size:18px">🤍</button>
+    </div>
+    <div id="cdet-gal"></div>
+    <div id="cdet-inf" style="padding:16px"></div>
+  </div>
+</div>
+
 <input type="file" id="av-in" accept="image/*" style="display:none" onchange="handleAv(event)">
 <input type="file" id="bg-in" accept="image/*" style="display:none" onchange="handleBg(event)">
 <div class="save-ind" id="si">✓ Saved to cloud</div>
@@ -683,7 +697,7 @@ function toast(msg, dur=2600) {
   clearTimeout(_toastT); _toastT=setTimeout(()=>{e.style.opacity=0;e.style.transform='translateX(-50%) translateY(20px)';},dur);
 }
 function flashSave() { const e=$('si'); e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),1800); }
-function openM(id)  { $(id).classList.add('on'); }
+function openM(id)  { $(id).classList.add('on'); history.pushState({tc:'modal',id:id},''); }
 function closeM(id) { $(id).classList.remove('on'); }
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
 
@@ -1195,7 +1209,7 @@ function renderTrade() {
   const archSec = $('arch-sec');
 
   // Show/hide sections based on mode
-  grid.style.display      = (mode==='trade'||mode==='iso') ? 'block' : 'none';
+  grid.style.display      = (mode==='trade'||mode==='iso'||mode==='favs') ? 'block' : 'none';
   memList.style.display   = mode==='members' ? 'block' : 'none';
   offersList.style.display= mode==='offers'  ? 'block' : 'none';
   archSec.style.display   = 'none';
@@ -1219,12 +1233,17 @@ function renderTrade() {
     return;
   }
 
-  // TRADE or ISO — show all community cards as a card grid
+  // TRADE, ISO or FAVS — show community cards as a card grid
   const isISO = mode === 'iso';
+  const isFavs = mode === 'favs';
+  const myFavs = myData().favourites || {};
   let results = [];
   Object.entries(ST.users).forEach(([username, userData]) => {
     (userData.cards || [])
-      .filter(c => isISO ? c.wishlist : c.forTrade)
+      .filter(c => {
+        if (isFavs) return myFavs[username+'_'+c.id]; // only favourited cards
+        return isISO ? c.wishlist : c.forTrade;
+      })
       .filter(c => !q || [c.artist,c.member,c.album,c.unitName,c.unitM1,c.unitM2,c.unitM3,c.notes]
         .some(s=>(s||'').toLowerCase().includes(q)))
       .forEach(c => results.push({card:c, owner:username}));
@@ -1250,17 +1269,23 @@ function renderTrade() {
       const isMe = owner === ST.user?.username;
       const nm = cNm(c), sb = cSb(c);
       const img = c.photos?.[0] ? `<img src="${c.photos[0]}" loading="lazy">` : `<span style="font-size:28px;color:var(--mt)">🃏</span>`;
-      html += `<div class="pcard" onclick="${isMe ? `openDet('${c.id}')` : `openMem('${esc(owner)}')`}">
-        <div class="pc-img">${img}
-          ${isISO?'<span class="bdg b-wi">★ ISO</span>':'<span class="bdg b-tr">TRADE</span>'}
-          ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
+      const favKey = owner + '_' + c.id;
+      const isFaved = (myData().favourites||{})[favKey];
+      const clickFn = isMe ? `openDet('${c.id}')` : `openCommunityCard('${esc(owner)}','${c.id}')`;
+      html += `<div class="pcard" style="position:relative">
+        <div onclick="${clickFn}">
+          <div class="pc-img">${img}
+            ${isISO?'<span class="bdg b-wi">★ ISO</span>':'<span class="bdg b-tr">TRADE</span>'}
+            ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
+          </div>
+          <div class="pc-inf">
+            <div class="pc-art">${esc(c.artist)}</div>
+            <div class="pc-nm">${esc(nm)}</div>
+            ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
+            <div style="font-size:9px;color:${isMe?'var(--pk)':'var(--mt)'};margin-top:2px">${isMe?'You':'@'+esc(owner)}</div>
+          </div>
         </div>
-        <div class="pc-inf">
-          <div class="pc-art">${esc(c.artist)}</div>
-          <div class="pc-nm">${esc(nm)}</div>
-          ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
-          <div style="font-size:9px;color:${isMe?'var(--pk)':'var(--mt)'};margin-top:2px">${isMe?'You':'@'+esc(owner)}</div>
-        </div>
+        ${!isMe?`<button onclick="event.stopPropagation();toggleFav('${esc(owner)}','${c.id}')" style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,.55);border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;line-height:1">${isFaved?'❤️':'🤍'}</button>`:''}
       </div>`;
     });
     html += '</div>';
@@ -1963,6 +1988,114 @@ async function openMem(u) {
 
 // Update goTab to handle chat tab
 // chat tab handled in main goTab
+
+
+
+// ══════════════════════════════════════════════════════
+//  COMMUNITY CARD DETAIL — view other users' cards
+// ══════════════════════════════════════════════════════
+var _cdetOwner = '', _cdetCardId = '';
+
+function openCommunityCard(owner, cardId) {
+  const userData = ST.users[owner]; if (!userData) return;
+  const c = (userData.cards||[]).find(x=>x.id===cardId); if (!c) return;
+  _cdetOwner = owner; _cdetCardId = cardId;
+
+  const nm=cNm(c), sb=cSb(c);
+  $('cdet-t').textContent = nm + ' — ' + c.artist;
+
+  // Gallery
+  const gal = $('cdet-gal');
+  if (c.photos?.length) {
+    gal.innerHTML = `<img id="cdet-main" class="gal-main" src="${c.photos[0]}">`
+      + (c.photos.length>1 ? `<div class="gal-strip">${c.photos.map((p,i)=>`<div class="gal-t${i===0?' on':''}" onclick="setCdetGal(${i})"><img src="${p}"></div>`).join('')}</div>` : '');
+  } else {
+    gal.innerHTML = `<div style="aspect-ratio:2/3;max-height:240px;background:var(--sf);display:flex;align-items:center;justify-content:center;font-size:52px">🃏</div>`;
+  }
+
+  // Fav state
+  const isFaved = (myData().favourites||{})[owner+'_'+cardId];
+  $('cdet-fav-btn').textContent = isFaved ? '❤️' : '🤍';
+
+  // Find any open trade offer for this card
+  const linkedTrade = tradeList().find(t=>t.offeringCardId===cardId&&t.posterUsername===owner&&t.status==='open')
+    || tradeList().find(t=>t.wantArtist&&t.posterUsername===owner&&t.status==='open');
+
+  const types={official:'Official',pob:'POB',fansign:'Fansign',season:"Season's Greetings",special:'Special Edition',other:'Other'};
+  const isFriend = (myData().friends||{})[owner];
+  $('cdet-inf').innerHTML = `
+    <div class="pip-row">
+      ${c.forTrade?'<span class="tag tg-p">For Trade</span>':''}
+      ${c.wishlist?'<span class="tag tg-g">★ ISO</span>':''}
+      ${c.category==='unit'?'<span class="tag tg-b">👥 Unit</span>':'<span class="tag tg-gr">👤 Solo</span>'}
+      <span class="tag tg-gr">${types[c.type]||c.type||''}</span>
+    </div>
+    <div style="font-family:'Noto Sans KR',sans-serif;font-size:20px;font-weight:700;margin:10px 0 2px">${esc(nm)}</div>
+    ${sb?`<div style="font-size:12px;color:var(--bl);margin-bottom:3px">${esc(sb)}</div>`:''}
+    <div style="color:var(--pk);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px">${esc(c.artist)}</div>
+    <div style="color:var(--dm);font-size:12px;margin-top:1px">${esc(c.album||'')}</div>
+    <div class="stars" style="margin-top:8px;font-size:12px">${strs(c.condition||'5')}</div>
+    ${c.notes?`<div class="divl"></div><div style="color:var(--dm);font-size:12px;line-height:1.6">${esc(c.notes)}</div>`:''}
+    <div class="divl"></div>
+    <div style="font-size:11px;color:var(--mt);margin-bottom:12px">Listed by <b style="color:var(--tx)">@${esc(owner)}</b></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${isFriend
+        ? `<button class="btn btn-p" style="width:100%" onclick="closeM('m-cdet');openDMWith('${esc(owner)}')">💬 Message @${esc(owner)}</button>`
+        : `<button class="btn btn-o" style="width:100%" onclick="closeM('m-cdet');openMem('${esc(owner)}')">👤 View @${esc(owner)}'s Profile</button>`
+      }
+      ${linkedTrade
+        ? `<button class="btn btn-p" style="width:100%" onclick="closeM('m-cdet');openFolder('${linkedTrade.id}')">🔄 Open Trade Thread</button>`
+        : `<button class="btn btn-o" style="width:100%" onclick="closeM('m-cdet');sendCardInterest('${esc(owner)}','${esc(cardId)}')">♡ Express Interest</button>`
+      }
+    </div>`;
+  openM('m-cdet');
+}
+
+function setCdetGal(i){const m=$('cdet-main');const d=ST.users[_cdetOwner];const c=(d?.cards||[]).find(x=>x.id===_cdetCardId);if(m&&c?.photos)m.src=c.photos[i];document.querySelectorAll('#m-cdet .gal-t').forEach((t,j)=>t.classList.toggle('on',j===i));}
+
+// Express interest — sends a DM or trade interest message
+async function sendCardInterest(owner, cardId) {
+  const c = (ST.users[owner]?.cards||[]).find(x=>x.id===cardId);
+  const nm = c ? cNm(c) : 'your card';
+  const isFriend = (myData().friends||{})[owner];
+  if (isFriend) {
+    // Open DM with pre-filled message
+    await openDMWith(owner);
+    const inp = $('dm-msg');
+    if (inp) inp.value = `Hey! I'm interested in your ${esc(nm)} (${c?.artist||''}) card ♡`;
+  } else {
+    // Find linked trade offer and send interest there
+    const trade = tradeList().find(t=>t.offeringCardId===cardId&&t.posterUsername===owner&&t.status==='open');
+    if (trade) { openFolder(trade.id); }
+    else {
+      // No trade post yet — show member profile so they can add friend/contact
+      toast('Add @'+owner+' as a friend to message them directly!');
+      openMem(owner);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  FAVOURITES
+// ══════════════════════════════════════════════════════
+async function toggleFav(owner, cardId) {
+  const key = owner + '_' + cardId;
+  const favs = myData().favourites || {};
+  if (favs[key]) { delete favs[key]; } else { favs[key] = { owner, cardId, at: Date.now() }; }
+  ST.users[ST.user.username] = ST.users[ST.user.username] || {};
+  ST.users[ST.user.username].favourites = favs;
+  renderTrade(); // refresh heart icons
+  try { await fbSet('/users/'+ST.user.username+'/favourites', favs); }
+  catch { toast('Could not save favourite'); }
+}
+
+async function toggleFavCard() {
+  if (!_cdetOwner || !_cdetCardId) return;
+  await toggleFav(_cdetOwner, _cdetCardId);
+  const isFaved = (myData().favourites||{})[_cdetOwner+'_'+_cdetCardId];
+  $('cdet-fav-btn').textContent = isFaved ? '❤️' : '🤍';
+  toast(isFaved ? 'Added to favourites ❤️' : 'Removed from favourites');
+}
 
 </script>
 </body>
