@@ -1365,7 +1365,11 @@ function renderTrade() {
 
 function tradeCardClick(idx) {
   var entry = window._tradeCards && window._tradeCards[idx];
-  if (!entry) { toast('Loading… please tap again'); renderTrade(); return; }
+  if (!entry) { 
+    toast('Refreshing… please tap again');
+    fbGet('/users').then(function(u){if(u)ST.users=u;renderTrade();});
+    return; 
+  }
   if (entry.owner === ST.user?.username) {
     openDet(entry.cardId);
   } else {
@@ -1483,7 +1487,8 @@ async function postTrade() {
 
 /* TRADE FOLDER */
 function openFolder(id) {
-  const t=(ST.trades||{})[id]; if(!t)return;
+  const t=(ST.trades||{})[id];
+  if(!t){ toast('Could not open trade — reloading…'); fbGet('/trades').then(function(tr){if(tr){ST.trades=tr;}renderTrade();}); return; }
   ST.viewTradeId=id;
   const isMe=t.posterUsername===ST.user?.username;
   $('fd-t').textContent=isMe?'My Trade Offer':`Trade with ${t.posterDisplayName}`;
@@ -2398,8 +2403,20 @@ function openFolderFromMem(tradeId) {
 }
 function openMemTrade(idx) {
   var id = window._memTrades && window._memTrades[idx];
-  if (id) openFolder(id);
-  else toast('Loading… please try again');
+  if (!id) { toast('Error: trade not found (#'+idx+')'); return; }
+  var t = (ST.trades||{})[id];
+  if (!t) {
+    // Trade not in local cache — reload and try again
+    toast('Loading trade…');
+    fbGet('/trades').then(function(trades) {
+      if (trades) ST.trades = trades;
+      var t2 = (ST.trades||{})[id];
+      if (t2) openFolder(id);
+      else toast('Trade not found — it may have been removed');
+    }).catch(function() { toast('Could not load trade'); });
+    return;
+  }
+  openFolder(id);
 }
 
 // openFolder: emoji/gif toolbar already in HTML
