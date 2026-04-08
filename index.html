@@ -1303,11 +1303,16 @@ function renderTrade() {
   const isISO = mode === 'iso';
   const isFavs = mode === 'favs';
   const myFavs = myData().favourites || {};
+
+  // Build a lookup table: index → {owner, cardId}
+  // onclick calls tradeCardClick(index) — zero escaping issues
+  window._tradeCards = [];
+
   let results = [];
   Object.entries(ST.users).forEach(([username, userData]) => {
     (userData.cards || [])
       .filter(c => {
-        if (isFavs) return myFavs[username+'_'+c.id]; // only favourited cards
+        if (isFavs) return myFavs[username+'_'+c.id];
         return isISO ? c.wishlist : c.forTrade;
       })
       .filter(c => !q || [c.artist,c.member,c.album,c.unitName,c.unitM1,c.unitM2,c.unitM3,c.notes]
@@ -1329,34 +1334,43 @@ function renderTrade() {
   let html = '';
   Object.keys(byArtist).sort().forEach(artist => {
     const group = byArtist[artist];
-    html += `<div class="st" style="margin-bottom:8px">${esc(artist)} <span style="font-size:11px;font-weight:400;color:var(--mt)">(${group.length})</span></div>`;
-    html += `<div class="grid" style="margin-bottom:18px">`;
+    html += `<div class="st" style="margin-bottom:8px">${esc(artist)} <span style="font-size:11px;font-weight:400;color:var(--mt)">(${group.length})</span></div><div class="grid" style="margin-bottom:18px">`;
     group.forEach(({card:c, owner}) => {
       const isMe = owner === ST.user?.username;
+      const idx = window._tradeCards.length;
+      window._tradeCards.push({owner, cardId: c.id});
       const nm = cNm(c), sb = cSb(c);
       const img = c.photos?.[0] ? `<img src="${c.photos[0]}" loading="lazy">` : `<span style="font-size:28px;color:var(--mt)">🃏</span>`;
-      const favKey = owner + '_' + c.id;
-      const isFaved = (myData().favourites||{})[favKey];
-      const clickFn = isMe ? `openDet('${c.id}')` : `openCommunityCard('${esc(owner)}','${c.id}')`;
-      html += `<div class="pcard" style="position:relative">
-        <div onclick="${clickFn}">
-          <div class="pc-img">${img}
-            ${isISO?'<span class="bdg b-wi">★ ISO</span>':'<span class="bdg b-tr">TRADE</span>'}
-            ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
-          </div>
-          <div class="pc-inf">
-            <div class="pc-art">${esc(c.artist)}</div>
-            <div class="pc-nm">${esc(nm)}</div>
-            ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
-            <div style="font-size:9px;color:${isMe?'var(--pk)':'var(--mt)'};margin-top:2px">${isMe?'You':'@'+esc(owner)}</div>
-          </div>
+      const favIdx = window._tradeCards.length - 1;
+      const isFaved = myFavs[owner+'_'+c.id];
+      html += `<div class="pcard" style="position:relative;cursor:pointer" onclick="tradeCardClick(${idx})">
+        <div class="pc-img">${img}
+          ${isISO?'<span class="bdg b-wi">★ ISO</span>':'<span class="bdg b-tr">TRADE</span>'}
+          ${c.category==='unit'?'<span class="bdg b-un">UNIT</span>':''}
         </div>
-        ${!isMe?`<button onclick="event.stopPropagation();toggleFav('${esc(owner)}','${c.id}')" style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,.55);border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;line-height:1">${isFaved?'❤️':'🤍'}</button>`:''}
+        <div class="pc-inf">
+          <div class="pc-art">${esc(c.artist)}</div>
+          <div class="pc-nm">${esc(nm)}</div>
+          ${sb?`<div class="pc-unit">${esc(sb)}</div>`:`<div class="pc-alb">${esc(c.album)}</div>`}
+          <div style="font-size:9px;color:${isMe?'var(--pk)':'var(--mt)'};margin-top:2px">${isMe?'You':'@'+esc(owner)}</div>
+        </div>
+        ${!isMe?`<button onclick="event.stopPropagation();favCardClick(${favIdx})" style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,.55);border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;line-height:1">${isFaved?'❤️':'🤍'}</button>`:''}
       </div>`;
     });
     html += '</div>';
   });
   grid.innerHTML = html;
+}
+
+function tradeCardClick(idx) {
+  var entry = window._tradeCards[idx];
+  if (!entry) return;
+  if (entry.owner === ST.user?.username) { openDet(entry.cardId); }
+  else { openCommunityCard(entry.owner, entry.cardId); }
+}
+function favCardClick(idx) {
+  var entry = window._tradeCards[idx];
+  if (entry) toggleFav(entry.owner, entry.cardId);
 }
 function tf(f,el){ST.tf=f;$('tc-chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTrade();}
 function toggleArch(){ST.archOpen=!ST.archOpen;$('arch-body').style.display=ST.archOpen?'':'none';$('arch-arr').style.transform=ST.archOpen?'rotate(180deg)':'';}
@@ -1403,13 +1417,19 @@ function folderHTML(t, archived=false) {
 function renderMembers(q='') {
   const ml=$('member-list');
   let list=Object.entries(ST.users).filter(([u])=>u!==ST.user?.username);
-  if(q)list=list.filter(([u,d])=>u.includes(q)||(d.displayName||'').toLowerCase().includes(q));
+  if(q)list=list.filter(([u,d])=>u.toLowerCase().includes(q)||(d.displayName||'').toLowerCase().includes(q));
   if(!list.length){ml.innerHTML=`<div class="empty"><div class="ei">👥</div><h3>No other members yet</h3><p>Invite friends to join!</p></div>`;return;}
-  ml.innerHTML=list.map(([u,d])=>{
+  window._memberList = list.map(([u])=>u);
+  ml.innerHTML = list.map(([u,d],i)=>{
     const tc=tradeList().filter(t=>t.posterUsername===u&&t.status==='open').length;
     const avH=d.profile?.avatar?`<img src="${d.profile.avatar}">`:(d.displayName||u)[0].toUpperCase();
-    return `<div class="fcard" onclick="openMem('${u}')"><div class="fcard-h"><div class="fav">${avH}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div><div style="font-size:10px;color:var(--mt);margin-top:2px">${(d.cards||[]).length} cards · ${tc} active trade${tc!==1?'s':''}</div></div></div></div>`;
+    return `<div class="fcard" style="cursor:pointer" onclick="memberCardClick(${i})"><div class="fcard-h"><div class="fav">${avH}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${esc(d.displayName||u)}</div><div style="font-size:11px;color:var(--pk)">@${esc(u)}</div><div style="font-size:10px;color:var(--mt);margin-top:2px">${(d.cards||[]).length} cards · ${tc} active trade${tc!==1?'s':''}</div></div></div></div>`;
   }).join('');
+}
+
+function memberCardClick(i) {
+  var u = window._memberList && window._memberList[i];
+  if (u) openMem(u);
 }
 
 /* PROPOSE */
@@ -2320,9 +2340,10 @@ async function openMem(u) {
       if (!el) return;
       e.stopPropagation();
       var action = el.dataset.action;
-      if (action === 'openfolder') { openFolder(el.dataset.id); }
-      else if (action === 'opendm')  { openDMWith(el.dataset.user); }
-      else if (action === 'openmem') { openMem(el.dataset.user); }
+      if      (action === 'openfolder') { openFolder(el.dataset.id); }
+      else if (action === 'opendm')     { openDMWith(el.dataset.user); }
+      else if (action === 'openmem')    { openMem(el.dataset.user); }
+      else if (action === 'memfolder')  { openFolder(el.dataset.id); }
     };
   }, 50);
 }
@@ -2420,15 +2441,29 @@ function openCommunityCard(owner, cardId) {
     <div style="font-size:11px;color:var(--mt);margin-bottom:12px">Listed by <b style="color:var(--tx)">@${esc(owner)}</b></div>
     <div style="display:flex;flex-direction:column;gap:8px">
       ${isFriend
-        ? `<button class="btn btn-p" style="width:100%" onclick="openDMWith('${esc(owner)}')">💬 Message @${esc(owner)}</button>`
-        : `<button class="btn btn-o" style="width:100%" onclick="openMem('${esc(owner)}')">👤 View @${esc(owner)}'s Profile</button>`
+        ? `<button class="btn btn-p" style="width:100%" data-action="opendm" data-user="${owner}">💬 Message @${esc(owner)}</button>`
+        : `<button class="btn btn-o" style="width:100%" data-action="openmem" data-user="${owner}">👤 View @${esc(owner)}'s Profile</button>`
       }
       ${linkedTrade
-        ? `<button class="btn btn-p" style="width:100%" onclick="openFolder('${linkedTrade.id}')">🔄 Open Trade Thread</button>`
-        : `<button class="btn btn-o" style="width:100%" onclick="sendCardInterest('${esc(owner)}','${esc(cardId)}')">♡ Express Interest</button>`
+        ? `<button class="btn btn-p" style="width:100%" data-action="openfolder" data-id="${linkedTrade?linkedTrade.id:''}">🔄 Open Trade Thread</button>`
+        : `<button class="btn btn-o" style="width:100%" data-action="interest" data-user="${owner}" data-cardid="${cardId}">♡ Express Interest</button>`
       }
     </div>`;
   openM('m-cdet');
+  // Event delegation for cdet action buttons
+  setTimeout(function() {
+    var inf = $('cdet-inf');
+    if (!inf) return;
+    inf.onclick = function(e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var act = btn.dataset.action;
+      if      (act === 'opendm')     { openDMWith(btn.dataset.user); }
+      else if (act === 'openmem')    { openMem(btn.dataset.user); }
+      else if (act === 'openfolder') { openFolder(btn.dataset.id); }
+      else if (act === 'interest')   { sendCardInterest(btn.dataset.user, btn.dataset.cardid); }
+    };
+  }, 50);
 }
 
 function setCdetGal(i){const m=$('cdet-main');const d=ST.users[_cdetOwner];const c=(d?.cards||[]).find(x=>x.id===_cdetCardId);if(m&&c?.photos)m.src=c.photos[i];document.querySelectorAll('#m-cdet .gal-t').forEach((t,j)=>t.classList.toggle('on',j===i));}
