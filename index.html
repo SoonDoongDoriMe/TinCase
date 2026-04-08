@@ -274,10 +274,10 @@ body{height:100%;min-height:-webkit-fill-available;overflow:hidden;background:va
 .fr-pending{background:var(--sf2);color:var(--dm);}
 .fr-accept{background:var(--mn);color:#000;}
 .fr-friends{background:var(--sf2);color:var(--mn);border:1px solid var(--mn);}
-.emoji-tray{display:none;flex-wrap:wrap;gap:3px;padding:8px 10px;background:var(--dk);border-top:1px solid var(--bd);max-height:130px;overflow-y:auto;}
+.emoji-tray{display:none;flex-wrap:wrap;gap:2px;padding:8px 10px;background:var(--dk);border-top:1px solid var(--bd);max-height:160px;overflow-y:auto;}
 .emoji-tray.on{display:flex;}
-.emoji-tray span{font-size:22px;cursor:pointer;padding:3px;border-radius:6px;line-height:1.2;}
-.emoji-tray span:active{background:var(--pp);}
+.emoji-tray span{font-size:24px;cursor:pointer;padding:4px;border-radius:6px;line-height:1.2;transition:transform .1s;}
+.emoji-tray span:active{background:var(--pp);transform:scale(1.3);}
 .chat-toolbar{display:flex;gap:4px;padding:5px 10px;background:var(--dk);border-top:1px solid var(--bd);}
 .chat-tb-btn{background:none;border:none;cursor:pointer;font-size:17px;padding:5px 7px;border-radius:8px;color:var(--dm);transition:background .15s;line-height:1;}
 .chat-tb-btn:active{background:var(--sf2);}
@@ -432,11 +432,11 @@ video.msg-media{max-width:220px;}
   <!-- PROFILE -->
   <div id="pn-prof" class="pane">
     <div class="scrl" style="padding:0">
-      <div class="pcover" onclick="document.getElementById('bg-in').click()">
+      <div class="pcover" onclick="document.getElementById('bg-in').click()" style="cursor:pointer">
         <div class="pcover-ov"></div>
-        <div class="pcover-btn">📷 Change</div>
+        <div class="pcover-btn" style="background:rgba(255,31,110,.7);color:#fff;font-weight:700">📷 Change Cover</div>
       </div>
-      <div class="pav-wrap"><div class="pav" id="pav" onclick="document.getElementById('av-in').click()"></div><div class="pav-ed" onclick="document.getElementById('av-in').click()">📷</div></div>
+      <div class="pav-wrap"><div class="pav" id="pav" onclick="document.getElementById('av-in').click()" style="cursor:pointer"></div><div class="pav-ed" onclick="document.getElementById('av-in').click()">📷</div></div>
       <div class="pinf">
         <div class="pnm" id="p-nm"></div><div class="phndl" id="p-hndl"></div>
         <div class="pbio hidden" id="p-bio"></div>
@@ -609,6 +609,24 @@ video.msg-media{max-width:220px;}
   <div class="modal"><div class="mhdl"></div>
     <div class="mhdr"><div class="mtitle">프로필 편집</div><button class="btn btn-ic" onclick="closeM('m-ep')">✕</button></div>
     <div class="mbody">
+      <!-- Photo section -->
+      <div class="fg">
+        <label class="lbl">Photos</label>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">
+          <div id="ep-av-preview" onclick="document.getElementById('av-in').click()" style="width:60px;height:60px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--pk2),var(--pk));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;cursor:pointer;border:2px solid var(--bdp);flex-shrink:0"></div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--tx)">Profile Photo</div>
+            <button class="btn btn-o btn-sm" style="margin-top:4px" onclick="document.getElementById('av-in').click()">📷 Change</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="ep-bg-preview" onclick="document.getElementById('bg-in').click()" style="width:60px;height:38px;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#1a0a2e,#2a0a1e);cursor:pointer;border:2px solid var(--bdp);flex-shrink:0"></div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--tx)">Cover Photo</div>
+            <button class="btn btn-o btn-sm" style="margin-top:4px" onclick="document.getElementById('bg-in').click()">📷 Change</button>
+          </div>
+        </div>
+      </div>
       <div class="fg"><label class="lbl">Display Name</label><input class="inp" id="ep-n"></div>
       <div class="fg"><label class="lbl">Bio</label><textarea class="ta" id="ep-b" placeholder="Tell the community about yourself…"></textarea></div>
       <div class="fg"><label class="lbl">Recovery Email</label><input class="inp" id="ep-e" type="email" placeholder="your@email.com"></div>
@@ -1069,7 +1087,15 @@ function renderStrip() {
     `<div class="padd" onclick="$('ph-in').click()"><span style="font-size:20px">+</span><span>ADD</span></div>`;
 }
 function rmPh(i) { ST.pendingPh.splice(i,1); renderStrip(); }
-function handlePh(e) { Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{ST.pendingPh.push(ev.target.result);renderStrip();};r.readAsDataURL(f);}); e.target.value=''; }
+function handlePh(e) {
+  Array.from(e.target.files).forEach(f=>{
+    // Resize card photos to max 800w to keep Firebase within limits
+    resizeImage(f, 800, 1200, 'fit', function(dataUrl){
+      ST.pendingPh.push(dataUrl); renderStrip();
+    });
+  });
+  e.target.value='';
+}
 
 async function saveCard() {
   const art=$('c-art').value.trim(), alb=$('c-alb').value.trim(), cat=ST.cat||'solo';
@@ -1659,7 +1685,17 @@ function renderProf(){
 }
 function renderProfRecent(){const g=$('p-rcnt');const r=myCards().slice(0,6);g.innerHTML=r.length?r.map(c=>cardHTML(c)).join(''):`<div style="color:var(--mt);font-size:13px">No cards yet</div>`;}
 
-function openEditProf(){$('ep-n').value=ST.user?.displayName||'';$('ep-b').value=myProf().bio||'';$('ep-e').value=myProf().email||'';openM('m-ep');}
+function openEditProf(){
+  $('ep-n').value=ST.user?.displayName||'';
+  $('ep-b').value=myProf().bio||'';
+  $('ep-e').value=myProf().email||'';
+  // Populate photo previews
+  const avPrev=$('ep-av-preview');
+  if(avPrev){avPrev.innerHTML=myProf().avatar?`<img src="${myProf().avatar}" style="width:100%;height:100%;object-fit:cover">`:`<span>${(ST.user?.displayName||'?')[0].toUpperCase()}</span>`;}
+  const bgPrev=$('ep-bg-preview');
+  if(bgPrev){bgPrev.innerHTML=myProf().bgPhoto?`<img src="${myProf().bgPhoto}" style="width:100%;height:100%;object-fit:cover">`:'<span style="font-size:9px;color:var(--mt);display:flex;align-items:center;justify-content:center;height:100%">No cover</span>';}
+  openM('m-ep');
+}
 
 async function saveProf(){
   const n=$('ep-n').value.trim(); if(!n){toast("Name can't be empty!");return;}
@@ -1675,9 +1711,91 @@ async function saveProf(){
   toast('Profile saved ✓');
 }
 
-function handleAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),avatar:ev.target.result};await saveMyProfile(newP);// update avatar on trades too
-tradeList().forEach(t=>{if(t.posterUsername===ST.user.username){t.posterAvatar=ev.target.result;fbPatch('/trades/'+t.id,{posterAvatar:ev.target.result});}});renderProf();toast('Profile picture updated ✓');};r.readAsDataURL(f);e.target.value='';}
-function handleBg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const newP={...myProf(),bgPhoto:ev.target.result};await saveMyProfile(newP);renderProf();toast('Cover photo updated ✓');};r.readAsDataURL(f);e.target.value='';}
+function handleAv(e){
+  const f=e.target.files[0]; if(!f)return;
+  // Resize + square-crop to 400x400 for avatar
+  resizeImage(f, 400, 400, 'square', function(dataUrl) {
+    saveMyProfile({...myProf(), avatar:dataUrl}).then(()=>{
+      tradeList().forEach(t=>{if(t.posterUsername===ST.user.username){t.posterAvatar=dataUrl;fbPatch('/trades/'+t.id,{posterAvatar:dataUrl});}});
+      renderProf();
+      const avPrev=$('ep-av-preview');
+      if(avPrev) avPrev.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">`;
+      toast('Profile photo updated ✓');
+    });
+  });
+  e.target.value='';
+}
+function handleBg(e){
+  const f=e.target.files[0]; if(!f)return;
+  // Resize + banner-crop to 1200x400 for cover
+  resizeImage(f, 1200, 400, 'banner', function(dataUrl) {
+    saveMyProfile({...myProf(), bgPhoto:dataUrl}).then(()=>{
+      renderProf();
+      const bgPrev=$('ep-bg-preview');
+      if(bgPrev) bgPrev.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">`;
+      toast('Cover photo updated ✓');
+    });
+  });
+  e.target.value='';
+}
+
+// ── IMAGE RESIZE + CROP UTILITY ──
+// mode: 'square' = center-crop to square, 'banner' = center-crop to banner ratio
+// Compresses to JPEG 0.88 quality — good balance of quality vs size
+function resizeImage(file, targetW, targetH, mode, callback) {
+  const img = new Image();
+  const objectUrl = URL.createObjectURL(file);
+  img.onload = function() {
+    URL.revokeObjectURL(objectUrl);
+    const canvas = document.createElement('canvas');
+    canvas.width  = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+
+    const srcW = img.naturalWidth;
+    const srcH = img.naturalHeight;
+    const targetRatio = targetW / targetH;
+    const srcRatio    = srcW / srcH;
+
+    let sx=0, sy=0, sw=srcW, sh=srcH;
+
+    if (mode === 'fit') {
+      // Scale to fit within bounds, no crop
+      const scale = Math.min(targetW/srcW, targetH/srcH, 1);
+      canvas.width  = Math.round(srcW * scale);
+      canvas.height = Math.round(srcH * scale);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      callback(canvas.toDataURL('image/jpeg', 0.88));
+      return;
+    } else if (mode === 'square') {
+      // Center square crop
+      if (srcRatio > 1) { sw=srcH; sx=(srcW-srcH)/2; }
+      else              { sh=srcW; sy=(srcH-srcW)/2; }
+    } else if (mode === 'banner') {
+      // Center crop to target ratio
+      if (srcRatio > targetRatio) {
+        // Image is wider — crop sides
+        sw = srcH * targetRatio;
+        sx = (srcW - sw) / 2;
+      } else {
+        // Image is taller — crop top/bottom
+        sh = srcW / targetRatio;
+        sy = (srcH - sh) / 2;
+      }
+    }
+
+    // Draw cropped + scaled image
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+    callback(canvas.toDataURL('image/jpeg', 0.88));
+  };
+  img.onerror = function() {
+    // Fallback: just read as-is if canvas fails
+    const r = new FileReader();
+    r.onload = ev => callback(ev.target.result);
+    r.readAsDataURL(file);
+  };
+  img.src = objectUrl;
+}
 
 
 
@@ -1729,7 +1847,26 @@ window.addEventListener('popstate', function() {
 
 let ST_dmPartner = '';   // username of current DM conversation
 let ST_chatTab   = 'group';
-const EMOJIS = ['😊','😂','🥰','😍','🤩','😎','🥳','😭','😢','😅','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💗','💓','💞','💕','✨','🌸','🌺','🌹','🌷','🌻','⭐','🎉','🎊','🎁','🎵','🎶','🍀','🦋','🌈','🔥','💫','👑','💎','🃏','📸','🎴','🀄','🎭','👀','💅','🙌','👏','🤝','🫶','💪','🤞','✌️','🤙','👍','❤️‍🔥','💝','🫰'];
+const EMOJIS = [
+  // Faces & emotions
+  '😊','😂','🤣','🥰','😍','🤩','😎','🥳','🤗','😇','🤭','😏','🥺','😭','😢','😤','😅','😬','🤔','😶','😑','🫠','🥹','😮','😲','🫨',
+  // Hearts & love
+  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💖','💗','💓','💞','💕','💝','❤️‍🔥','💔','🫀','❣️','💘','💟',
+  // Kpop & music
+  '✨','⭐','🌟','💫','🌸','🌺','🌹','🌷','🌻','🌼','🪷','🎵','🎶','🎤','🎧','🎸','🎹','🎼','🎭','🎪',
+  // Celebration
+  '🎉','🎊','🎁','🪩','🥂','🍾','🎈','🎀','🏆','🥇','🎯','🎮','🕹️',
+  // Nature & cute
+  '🍀','🦋','🌈','🌙','☀️','⛅','🌊','🪐','🦄','🐱','🐶','🐰','🐻','🦊','🐼','🐨','🐸','🦋','🌺',
+  // K-culture
+  '👑','💎','💍','👒','🪭','🧧','🀄','🃏','📸','🎴','📱','💌','📩','🫧',
+  // Hands & gestures
+  '👍','👎','👏','🙌','🤝','🫶','💪','🤞','✌️','🤙','☝️','🫰','🤌','💅','🙏','🤲',
+  // Food & fun
+  '🍡','🍧','🧋','🍰','🎂','🍭','🍬','🫧','🍵','☕','🧃',
+  // Symbols
+  '🔥','💥','🌀','💤','💦','🫧','⚡','🌈','🎆','🎇','✨','🌟','❇️','✳️'
+];
 
 // ── CHAT TAB SWITCHER ──
 function chatTab(tab, el) {
@@ -1908,26 +2045,47 @@ function insertEmoji(id, emoji) {
 let _gifT = {};
 function toggleGif(id) {
   const el = $(id+'-gif'); if (!el) return;
-  el.classList.toggle('hidden');
+  const isOpen = el.classList.contains('on');
+  el.classList.toggle('on', !isOpen);
+  // Close emoji if open
   const em = $(id+'-emoji'); if (em) em.classList.remove('on');
-  if (!el.classList.contains('hidden')) searchGif(id);
+  // Load GIFs when opening
+  if (!isOpen) {
+    // Clear search and load trending kpop gifs
+    const qInp = $(id+'-gif-q');
+    if (qInp && !qInp.value) qInp.value = '';
+    searchGif(id);
+  }
 }
 async function searchGif(id) {
   const q = ($(id+'-gif-q')?.value||'').trim() || 'kpop';
   clearTimeout(_gifT[id]);
   _gifT[id] = setTimeout(async () => {
     const grid = $(id+'-gif-grid'); if (!grid) return;
-    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Loading…</div>';
+    grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px;text-align:center"><span class="spin"></span> Loading GIFs…</div>';
     try {
-      const r = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyAyimkuYQYF_FXVALexPzpAGBQy_eMPeT&limit=12&media_filter=gif`);
+      // Tenor v1 API — no key needed for basic search
+      const url = 'https://tenor.com/v1/search?q='+encodeURIComponent(q)+'&limit=16&contentfilter=medium&media_filter=minimal';
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('status '+r.status);
       const data = await r.json();
       const results = data.results || [];
-      if (!results.length) { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">No GIFs found</div>'; return; }
+      if (!results.length) {
+        grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px;text-align:center">No GIFs found for "'+q+'"</div>';
+        return;
+      }
       grid.innerHTML = results.map(g => {
-        const url = g.media_formats?.tinygif?.url || g.media_formats?.gif?.url || '';
-        return `<img src="${url}" loading="lazy" onclick="sendGif('${id}','${url}')">`;
-      }).join('');
-    } catch { grid.innerHTML = '<div style="color:var(--mt);font-size:11px;padding:8px">Could not load GIFs</div>'; }
+        const tiny = g.media?.[0]?.tinygif?.url || g.media?.[0]?.gif?.url || '';
+        if (!tiny) return '';
+        return `<img src="${tiny}" loading="lazy" onclick="sendGif('${id}','${tiny}')" style="cursor:pointer">`;
+      }).filter(Boolean).join('');
+    } catch(e) {
+      // Fallback: show a message with direct Tenor link
+      grid.innerHTML = `<div style="color:var(--mt);font-size:11px;padding:10px;text-align:center;line-height:1.6">
+        GIF search unavailable.<br>
+        <a href="https://tenor.com/search/${encodeURIComponent(q)}" target="_blank" style="color:var(--pk2)">Open Tenor ↗</a>
+      </div>`;
+    }
   }, 400);
 }
 async function sendGif(id, url) {
